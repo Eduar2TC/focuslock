@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FocusLock</string>
+    <string name="accessibility_service_description">FocusLock uses this service to detect when you open a blocked application during a focus session, so it can remind you to stay focused.</string>
+    <string name="focus_notification_title">Focus Session Active</string>
+    <string name="focus_notification_body">Stay focused! Tap to return to FocusLock.</string>
+</resources>
