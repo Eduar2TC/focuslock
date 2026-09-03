@@ -5,6 +5,7 @@ import 'package:focuslock/shared/theme/app_theme.dart';
 import 'package:focuslock/core/extensions/extensions.dart';
 import 'package:focuslock/features/focus/presentation/controllers/focus_session_controller.dart';
 import 'package:focuslock/app/dependencies.dart';
+import 'package:focuslock/features/focus/domain/entities/focus_session.dart';
 
 class FocusPage extends ConsumerStatefulWidget {
   const FocusPage({super.key});
@@ -54,6 +55,13 @@ class _FocusPageState extends ConsumerState<FocusPage> {
       );
     }
 
+    // Navegar cuando la sesión completa
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (sessionState.session.isCompleted) {
+        context.go('/completion');
+      }
+    });
+
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       body: SafeArea(
@@ -70,7 +78,7 @@ class _FocusPageState extends ConsumerState<FocusPage> {
               const SizedBox(height: 48),
               _buildProgressBar(sessionState.progress),
               const Spacer(),
-              _buildControls(sessionState.isPaused),
+              _buildControls(sessionState.isPaused, sessionState.isBreak),
               const SizedBox(height: 32),
             ],
           ),
@@ -126,27 +134,46 @@ class _FocusPageState extends ConsumerState<FocusPage> {
     );
   }
 
-  Widget _buildControls(bool isPaused) {
+  Widget _buildControls(bool isPaused, bool isBreak) {
     final controller = ref.read(focusSessionControllerProvider.notifier);
+
+    if (isBreak) {
+      return Column(
+        children: [
+          Text(
+            'Descanso',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              color: AppTheme.primaryColor,
+            ),
+          ),
+          const SizedBox(height: 16),
+          _buildControlButton(
+            'Saltar descanso',
+            Icons.skip_next_rounded,
+            () => _safeCall(() => controller.completeBreak()),
+          ),
+        ],
+      );
+    }
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         if (isPaused)
           _buildControlButton(
-            'Resume',
+            'Reanudar',
             Icons.play_arrow_rounded,
             () => _safeCall(() => controller.resume()),
           )
         else
           _buildControlButton(
-            'Pause',
+            'Pausar',
             Icons.pause_rounded,
             () => _safeCall(() => controller.pause()),
           ),
         const SizedBox(width: 24),
         _buildControlButton(
-          'Cancel',
+          'Cancelar',
           Icons.close_rounded,
           () => _showCancelDialog(),
           isDestructive: true,
@@ -203,12 +230,12 @@ class _FocusPageState extends ConsumerState<FocusPage> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppTheme.surfaceColor,
-        title: const Text('Cancel Session?'),
-        content: const Text('Your progress will be saved but the session will be marked as cancelled.'),
+        title: const Text('Cancelar Sesión?'),
+        content: const Text('Tu progreso se guardará pero la sesión se marcará como cancelada.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Keep Focus'),
+            child: const Text('Seguir Enfocado'),
           ),
           TextButton(
             onPressed: () {
@@ -217,12 +244,11 @@ class _FocusPageState extends ConsumerState<FocusPage> {
               context.go('/home');
             },
             child: const Text(
-              'Cancel Session',
+              'Cancelar Sesión',
               style: TextStyle(color: AppTheme.errorColor),
             ),
           ),
         ],
       ),
     );
-  }
-}
+  }}

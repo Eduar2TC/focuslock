@@ -2,8 +2,12 @@ package com.focuslock.app.accessibility
 
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
+import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.provider.Settings
+import android.text.TextUtils
 import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 
@@ -17,11 +21,28 @@ class FocusAccessibilityService : AccessibilityService() {
 
         fun isRunning(): Boolean = instance != null
 
+        fun isPermissionGranted(context: Context): Boolean {
+            val service = ComponentName(context, FocusAccessibilityService::class.java).flattenToShortString()
+            val enabledServices = Settings.Secure.getString(
+                context.contentResolver,
+                Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+            ) ?: return false
+            val colonSplitter = TextUtils.SimpleStringSplitter(':')
+            colonSplitter.setString(enabledServices)
+            while (colonSplitter.hasNext()) {
+                val componentName = colonSplitter.next()
+                if (componentName.equals(service, ignoreCase = true)) {
+                    return true
+                }
+            }
+            return false
+        }
+
         fun setBlockedPackages(packages: Set<String>) {
             blockedPackages = packages
         }
 
-        fun setInterventionCallback(callback: (String) -> Unit) {
+        fun setInterventionCallback(callback: ((String) -> Unit)?) {
             interventionCallback = callback
         }
     }
@@ -38,9 +59,18 @@ class FocusAccessibilityService : AccessibilityService() {
 
             if (blockedPackages.contains(packageName)) {
                 Log.d(TAG, "Blocked app detected: $packageName")
+                // Cerrar la app bloqueada y volver a FocusLock
                 interventionCallback?.invoke(packageName)
+                navigateToFocusApp()
             }
         }
+    }
+
+    private fun navigateToFocusApp() {
+        val intent = Intent(this, com.focuslock.app.MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        }
+        startActivity(intent)
     }
 
     override fun onInterrupt() {
