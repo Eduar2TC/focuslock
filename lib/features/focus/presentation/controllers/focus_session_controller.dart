@@ -142,6 +142,10 @@ class FocusSessionController extends StateNotifier<FocusSessionState?> {
     }
   }
 
+  void completeBreak() {
+    _engine.completeBreak();
+  }
+
   @override
   void dispose() {
     _stateSubscription?.cancel();

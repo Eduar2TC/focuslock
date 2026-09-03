@@ -30,7 +30,7 @@ class FocusMethodChannel(
                 }
                 "hasRequiredPermissions" -> {
                     val hasUsage = usageManager.hasUsageStatsPermission()
-                    val hasAccessibility = FocusAccessibilityService.isRunning()
+                    val hasAccessibility = FocusAccessibilityService.isPermissionGranted(activity)
                     result.success(mapOf(
                         "usageStats" to hasUsage,
                         "accessibility" to hasAccessibility
@@ -47,10 +47,17 @@ class FocusMethodChannel(
                 "startBlocking" -> {
                     val packages = call.arguments as List<String>
                     blockingManager.startBlocking(packages)
+                    FocusAccessibilityService.setBlockedPackages(packages.toSet())
+                    // Configurar callback para cerrar la app bloqueada y volver a FocusLock
+                    FocusAccessibilityService.setInterventionCallback { packageName ->
+                        blockingManager.navigateToFocusApp()
+                    }
                     result.success(null)
                 }
                 "stopBlocking" -> {
                     blockingManager.stopBlocking()
+                    FocusAccessibilityService.setBlockedPackages(emptySet())
+                    FocusAccessibilityService.setInterventionCallback(null)
                     result.success(null)
                 }
                 "getCurrentForegroundApp" -> {
