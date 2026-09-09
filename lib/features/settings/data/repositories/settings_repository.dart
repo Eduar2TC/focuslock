@@ -12,7 +12,8 @@ class SettingsRepository {
   int get cycles => _prefs.getInt('cycles') ?? AppConstants.defaultCycles;
   bool get soundEnabled => _prefs.getBool('soundEnabled') ?? true;
   bool get vibrationEnabled => _prefs.getBool('vibrationEnabled') ?? true;
-  bool get allowEmergencyExit => _prefs.getBool('allowEmergencyExit') ?? true;
+  bool get allowEmergencyExit => _prefs.getBool('allowEmergencyExit') ?? false;
+  bool get allowCancelSession => _prefs.getBool('allowCancelSession') ?? true;
   String get enforcementLevel => _prefs.getString('enforcementLevel') ?? 'normal';
 
   Future<void> setFocusDuration(int minutes) async {
@@ -41,6 +42,10 @@ class SettingsRepository {
 
   Future<void> setAllowEmergencyExit(bool allow) async {
     await _prefs.setBool('allowEmergencyExit', allow);
+  }
+
+  Future<void> setAllowCancelSession(bool allow) async {
+    await _prefs.setBool('allowCancelSession', allow);
   }
 
   Future<void> setEnforcementLevel(String level) async {

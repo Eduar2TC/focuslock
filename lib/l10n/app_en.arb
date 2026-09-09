@@ -1,0 +1,520 @@
+{
+  "app_name": "FocusLock",
+  "@app_name": {
+    "description": "The name of the app"
+  },
+
+  "greetingMorning": "Good morning",
+  "@greetingMorning": {
+    "description": "Morning greeting"
+  },
+  "greetingAfternoon": "Good afternoon",
+  "@greetingAfternoon": {
+    "description": "Afternoon greeting"
+  },
+  "greetingEvening": "Good evening",
+  "@greetingEvening": {
+    "description": "Evening greeting"
+  },
+
+  "timeAM": "AM",
+  "@timeAM": {
+    "description": "AM time period"
+  },
+  "timePM": "PM",
+  "@timePM": {
+    "description": "PM time period"
+  },
+
+  "commonCancel": "Cancel",
+  "@commonCancel": {
+    "description": "Cancel action"
+  },
+  "commonDelete": "Delete",
+  "@commonDelete": {
+    "description": "Delete action"
+  },
+  "commonEdit": "Edit",
+  "@commonEdit": {
+    "description": "Edit action"
+  },
+  "commonError": "Error",
+  "@commonError": {
+    "description": "Error label"
+  },
+  "commonDay": "day",
+  "@commonDay": {
+    "description": "Singular day"
+  },
+  "commonDays": "days",
+  "@commonDays": {
+    "description": "Plural days"
+  },
+  "commonCycles": "cycles",
+  "@commonCycles": {
+    "description": "Cycles label"
+  },
+
+  "homeTitle": "Today's focus",
+  "@homeTitle": {
+    "description": "Home page title"
+  },
+  "homeStartButton": "Start Focus",
+  "@homeStartButton": {
+    "description": "Button to start a focus session"
+  },
+  "homeResumeSession": "Resume Session",
+  "@homeResumeSession": {
+    "description": "Button to resume an active focus session"
+  },
+  "homeActiveSession": "Focus session in progress",
+  "@homeActiveSession": {
+    "description": "Text indicating an active focus session is running"
+  },
+  "homeStatsButton": "Statistics",
+  "@homeStatsButton": {
+    "description": "Button to view statistics"
+  },
+  "homeSettingsButton": "Settings",
+  "@homeSettingsButton": {
+    "description": "Button to view settings"
+  },
+  "homeStatFocusTimeLabel": "Focus Time",
+  "@homeStatFocusTimeLabel": {
+    "description": "Label for focus time stat"
+  },
+  "homeStatStreakLabel": "Streak",
+  "@homeStatStreakLabel": {
+    "description": "Label for streak stat"
+  },
+
+  "onboardingStep1Title": "Welcome to FocusLock",
+  "@onboardingStep1Title": {
+    "description": "Onboarding step 1 title"
+  },
+  "onboardingStep1Subtitle": "A tool for deep work, not another distraction.",
+  "@onboardingStep1Subtitle": {
+    "description": "Onboarding step 1 subtitle"
+  },
+  "onboardingStep2Title": "Define Your Intention",
+  "@onboardingStep2Title": {
+    "description": "Onboarding step 2 title"
+  },
+  "onboardingStep2Subtitle": "Tell us what you want to accomplish. This creates commitment.",
+  "@onboardingStep2Subtitle": {
+    "description": "Onboarding step 2 subtitle"
+  },
+  "onboardingStep3Title": "Set Your Timer",
+  "@onboardingStep3Title": {
+    "description": "Onboarding step 3 title"
+  },
+  "onboardingStep3Subtitle": "Choose how long you want to focus. Start with 25 minutes.",
+  "@onboardingStep3Subtitle": {
+    "description": "Onboarding step 3 subtitle"
+  },
+  "onboardingStep4Title": "Choose Your Distractions",
+  "@onboardingStep4Title": {
+    "description": "Onboarding step 4 title"
+  },
+  "onboardingStep4Subtitle": "Select the apps that pull you away from your work.",
+  "@onboardingStep4Subtitle": {
+    "description": "Onboarding step 4 subtitle"
+  },
+  "onboardingStep5Title": "Grant Permissions",
+  "@onboardingStep5Title": {
+    "description": "Onboarding step 5 title"
+  },
+  "onboardingStep5Subtitle": "FocusLock needs these to protect your focus time.",
+  "@onboardingStep5Subtitle": {
+    "description": "Onboarding step 5 subtitle"
+  },
+  "onboardingStep6Title": "You're Ready",
+  "@onboardingStep6Title": {
+    "description": "Onboarding step 6 title"
+  },
+  "onboardingStep6Subtitle": "Put your phone down and start working. We will handle the rest.",
+  "@onboardingStep6Subtitle": {
+    "description": "Onboarding step 6 subtitle"
+  },
+  "onboardingButtonNext": "Next",
+  "@onboardingButtonNext": {
+    "description": "Next button on onboarding"
+  },
+  "onboardingButtonStart": "Get Started",
+  "@onboardingButtonStart": {
+    "description": "Start button on onboarding"
+  },
+
+  "presessionAppbarTitle": "New Session",
+  "@presessionAppbarTitle": {
+    "description": "Pre-session page title"
+  },
+  "presessionTaskLabel": "What are you going to work on?",
+  "@presessionTaskLabel": {
+    "description": "Task input label"
+  },
+  "presessionTaskHint": "Build my Flutter app",
+  "@presessionTaskHint": {
+    "description": "Task input hint"
+  },
+  "presessionDurationLabel": "Duration",
+  "@presessionDurationLabel": {
+    "description": "Duration selector label"
+  },
+  "presessionDurationSummary": "{duration} min will be used unless you pick another option",
+  "@presessionDurationSummary": {
+    "description": "Shows the active session duration; tap a chip to override",
+    "placeholders": {
+      "duration": {"type": "int"}
+    }
+  },
+  "presessionBlockedAppsLabel": "Blocked Apps",
+  "@presessionBlockedAppsLabel": {
+    "description": "Blocked apps section label"
+  },
+  "presessionNoBlockedApps": "No apps blocked. Tap Edit to select apps.",
+  "@presessionNoBlockedApps": {
+    "description": "Empty blocked apps message"
+  },
+  "presessionErrorEmptyTask": "Please enter a task",
+  "@presessionErrorEmptyTask": {
+    "description": "Error when task is empty"
+  },
+  "presessionStartButton": "Start Focus",
+  "@presessionStartButton": {
+    "description": "Button to start focus session"
+  },
+
+  "focusCycleIndicator": "Cycle {current} of {total}",
+  "@focusCycleIndicator": {
+    "description": "Cycle indicator text",
+    "placeholders": {
+      "current": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
+  "focusBreakTitle": "Break",
+  "@focusBreakTitle": {
+    "description": "Break period title"
+  },
+  "focusSkipBreak": "Skip break",
+  "@focusSkipBreak": {
+    "description": "Button to skip break"
+  },
+  "focusResume": "Resume",
+  "@focusResume": {
+    "description": "Button to resume session"
+  },
+  "focusPause": "Pause",
+  "@focusPause": {
+    "description": "Button to pause session"
+  },
+  "focusCancelDialogTitle": "Cancel Session?",
+  "@focusCancelDialogTitle": {
+    "description": "Cancel dialog title"
+  },
+  "focusCancelDialogContent": "Your progress will be saved but the session will be marked as cancelled.",
+  "@focusCancelDialogContent": {
+    "description": "Cancel dialog content"
+  },
+  "focusCancelDialogKeepGoing": "Keep Focus",
+  "@focusCancelDialogKeepGoing": {
+    "description": "Button to keep focusing"
+  },
+  "focusCancelDialogConfirm": "Cancel Session",
+  "@focusCancelDialogConfirm": {
+    "description": "Button to confirm cancellation"
+  },
+  "focusExitDialogTitle": "Leave Session?",
+  "@focusExitDialogTitle": {
+    "description": "Exit session dialog title"
+  },
+  "focusExitDialogContent": "Your focus session keeps running in the background. You can resume it from the home screen or the notification.",
+  "@focusExitDialogContent": {
+    "description": "Exit session dialog content"
+  },
+  "focusExitDialogStay": "Keep Focusing",
+  "@focusExitDialogStay": {
+    "description": "Button to stay in the focus session"
+  },
+  "focusExitDialogExit": "Exit to Home",
+  "@focusExitDialogExit": {
+    "description": "Button to leave the session while it keeps running"
+  },
+
+  "completionTitleCompleted": "Session Complete",
+  "@completionTitleCompleted": {
+    "description": "Title when session completed"
+  },
+  "completionTitleCancelled": "Session Ended",
+  "@completionTitleCancelled": {
+    "description": "Title when session cancelled"
+  },
+  "completionInfoTask": "Task",
+  "@completionInfoTask": {
+    "description": "Task info label"
+  },
+  "completionInfoScore": "Focus Score",
+  "@completionInfoScore": {
+    "description": "Score info label"
+  },
+  "completionInfoCurrentStreak": "Current Streak",
+  "@completionInfoCurrentStreak": {
+    "description": "Streak info label"
+  },
+  "completionEncourage": "Nice work! Every focused minute counts.",
+  "@completionEncourage": {
+    "description": "Encouraging subtitle shown when a session completes"
+  },
+  "completionDoneButton": "Done",
+  "@completionDoneButton": {
+    "description": "Done button on completion"
+  },
+
+  "settingsAppbarTitle": "Settings",
+  "@settingsAppbarTitle": {
+    "description": "Settings page title"
+  },
+  "settingsSectionFocus": "Focus",
+  "@settingsSectionFocus": {
+    "description": "Focus settings section"
+  },
+  "settingsFocusDuration": "Focus Duration",
+  "@settingsFocusDuration": {
+    "description": "Focus duration setting"
+  },
+  "settingsShortBreak": "Short Break",
+  "@settingsShortBreak": {
+    "description": "Short break setting"
+  },
+  "settingsLongBreak": "Long Break",
+  "@settingsLongBreak": {
+    "description": "Long break setting"
+  },
+  "settingsCycles": "Cycles",
+  "@settingsCycles": {
+    "description": "Cycles setting"
+  },
+  "settingsSectionBlocking": "Blocking",
+  "@settingsSectionBlocking": {
+    "description": "Blocking settings section"
+  },
+  "settingsAllowBypassBlocking": "Allow Bypass Blocking",
+  "@settingsAllowBypassBlocking": {
+    "description": "Allow bypass blocking setting - when enabled, blocked apps can be opened freely"
+  },
+  "settingsAllowCancelSession": "Allow Cancel Session",
+  "@settingsAllowCancelSession": {
+    "description": "Allow cancel session setting - when enabled, the cancel button is shown during focus"
+  },
+  "settingsSectionNotifications": "Notifications",
+  "@settingsSectionNotifications": {
+    "description": "Notifications settings section"
+  },
+  "settingsSound": "Sound",
+  "@settingsSound": {
+    "description": "Sound setting"
+  },
+  "settingsVibration": "Vibration",
+  "@settingsVibration": {
+    "description": "Vibration setting"
+  },
+  "settingsSectionData": "Data",
+  "@settingsSectionData": {
+    "description": "Data settings section"
+  },
+  "settingsExportData": "Export Data",
+  "@settingsExportData": {
+    "description": "Export data action"
+  },
+  "settingsDeleteHistory": "Delete History",
+  "@settingsDeleteHistory": {
+    "description": "Delete history action"
+  },
+  "settingsExportSuccess": "Data exported successfully",
+  "@settingsExportSuccess": {
+    "description": "Export success message"
+  },
+  "settingsExportError": "Export failed: {error}",
+  "@settingsExportError": {
+    "description": "Export error message",
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "settingsDeleteDialogTitle": "Delete All History",
+  "@settingsDeleteDialogTitle": {
+    "description": "Delete dialog title"
+  },
+  "settingsDeleteDialogContent": "This will permanently delete all your focus sessions. This action cannot be undone.",
+  "@settingsDeleteDialogContent": {
+    "description": "Delete dialog content"
+  },
+  "settingsDeleteSuccess": "History deleted successfully",
+  "@settingsDeleteSuccess": {
+    "description": "Delete success message"
+  },
+  "settingsDeleteError": "Delete failed: {error}",
+  "@settingsDeleteError": {
+    "description": "Delete error message",
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+
+  "statsAppbarTitle": "Statistics",
+  "@statsAppbarTitle": {
+    "description": "Statistics page title"
+  },
+  "statsOverviewSection": "Overview",
+  "@statsOverviewSection": {
+    "description": "Overview section title"
+  },
+  "statsSessionsLabel": "Sessions",
+  "@statsSessionsLabel": {
+    "description": "Sessions stat label"
+  },
+  "statsSessionsValue": "{count} completed",
+  "@statsSessionsValue": {
+    "description": "Sessions stat value",
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "statsTotalFocusTimeLabel": "Focus Time",
+  "@statsTotalFocusTimeLabel": {
+    "description": "Focus time stat label"
+  },
+  "statsCurrentStreakLabel": "Current Streak",
+  "@statsCurrentStreakLabel": {
+    "description": "Streak stat label"
+  },
+  "statsCurrentStreakValue": "{count} days",
+  "@statsCurrentStreakValue": {
+    "description": "Streak stat value",
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "statsTodayLabel": "Today",
+  "@statsTodayLabel": {
+    "description": "Today section label"
+  },
+  "statsTodayWithCount": "Today ({count} sessions)",
+  "@statsTodayWithCount": {
+    "description": "Today section with count",
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "statsEmptyTodayTitle": "No sessions today",
+  "@statsEmptyTodayTitle": {
+    "description": "Empty today title"
+  },
+  "statsEmptyTodayDescription": "Start a focus session to see your progress here.",
+  "@statsEmptyTodayDescription": {
+    "description": "Empty today description"
+  },
+  "statsEmptyTodayCta": "Start Focus",
+  "@statsEmptyTodayCta": {
+    "description": "Call to action button in the empty today state"
+  },
+
+  "appsAppbarTitle": "Blocked Apps",
+  "@appsAppbarTitle": {
+    "description": "Apps page title"
+  },
+  "appsPermissionsRequired": "Permissions Required",
+  "@appsPermissionsRequired": {
+    "description": "Permissions required title"
+  },
+  "appsGrantUsageAccess": "Grant Usage Access",
+  "@appsGrantUsageAccess": {
+    "description": "Grant usage access button"
+  },
+  "appsGrantAccessibilityAccess": "Grant Accessibility Access",
+  "@appsGrantAccessibilityAccess": {
+    "description": "Grant accessibility access button"
+  },
+  "appsEmptyTitle": "No apps found",
+  "@appsEmptyTitle": {
+    "description": "Empty apps title"
+  },
+  "appsErrorLoad": "Failed to load apps: {error}",
+  "@appsErrorLoad": {
+    "description": "Error loading apps",
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+
+  "notificationSessionActiveTitle": "Focus Session Active",
+  "@notificationSessionActiveTitle": {
+    "description": "Notification title for active session"
+  },
+  "notificationSessionActiveBody": "{task} - {minutes} minutes",
+  "@notificationSessionActiveBody": {
+    "description": "Notification body for active session",
+    "placeholders": {
+      "task": {"type": "String"},
+      "minutes": {"type": "int"}
+    }
+  },
+  "notificationSessionRecoveringBody": "{task} - {minutes} minutes remaining",
+  "@notificationSessionRecoveringBody": {
+    "description": "Notification body when recovering session",
+    "placeholders": {
+      "task": {"type": "String"},
+      "minutes": {"type": "int"}
+    }
+  },
+
+  "achievementFirstSessionTitle": "First Step",
+  "@achievementFirstSessionTitle": {
+    "description": "First session achievement title"
+  },
+  "achievementFirstSessionDescription": "Complete your first focus session",
+  "@achievementFirstSessionDescription": {
+    "description": "First session achievement description"
+  },
+  "achievementStreak3Title": "Consistent",
+  "@achievementStreak3Title": {
+    "description": "3-day streak achievement title"
+  },
+  "achievementStreak3Description": "Maintain a 3-day streak",
+  "@achievementStreak3Description": {
+    "description": "3-day streak achievement description"
+  },
+  "achievementStreak7Title": "Dedicated",
+  "@achievementStreak7Title": {
+    "description": "7-day streak achievement title"
+  },
+  "achievementStreak7Description": "Maintain a 7-day streak",
+  "@achievementStreak7Description": {
+    "description": "7-day streak achievement description"
+  },
+  "achievementSessions10Title": "Focused",
+  "@achievementSessions10Title": {
+    "description": "10 sessions achievement title"
+  },
+  "achievementSessions10Description": "Complete 10 focus sessions",
+  "@achievementSessions10Description": {
+    "description": "10 sessions achievement description"
+  },
+  "achievementSessions50Title": "Disciplined",
+  "@achievementSessions50Title": {
+    "description": "50 sessions achievement title"
+  },
+  "achievementSessions50Description": "Complete 50 focus sessions",
+  "@achievementSessions50Description": {
+    "description": "50 sessions achievement description"
+  },
+  "achievementFocus10hTitle": "Deep Worker",
+  "@achievementFocus10hTitle": {
+    "description": "10 hours focus achievement title"
+  },
+  "achievementFocus10hDescription": "Accumulate 10 hours of focus time",
+  "@achievementFocus10hDescription": {
+    "description": "10 hours focus achievement description"
+  }
+}

@@ -58,8 +58,8 @@ void main() {
       expect(repository.vibrationEnabled, true);
     });
 
-    test('default allow emergency exit is true', () {
-      expect(repository.allowEmergencyExit, true);
+    test('default allow emergency exit is false', () {
+      expect(repository.allowEmergencyExit, false);
     });
 
     test('can toggle sound', () async {

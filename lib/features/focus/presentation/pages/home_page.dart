@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
+import 'package:focuslock/l10n/app_localizations.dart';
 import 'package:focuslock/shared/theme/app_theme.dart';
+import 'package:focuslock/core/constants/app_constants.dart';
 import 'package:focuslock/core/extensions/extensions.dart';
+import 'package:focuslock/features/focus/domain/entities/focus_session.dart';
 import 'package:focuslock/app/dependencies.dart';
 
 class HomePage extends ConsumerWidget {
@@ -10,163 +14,616 @@ class HomePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final totalFocusTimeAsync = ref.watch(totalFocusTimeProvider);
+    final l10n = AppLocalizations.of(context)!;
+    final sessionState = ref.watch(focusSessionControllerProvider);
+    final dashboardAsync = ref.watch(homeDashboardProvider);
     final currentStreakAsync = ref.watch(currentStreakProvider);
+    final hasActiveSession =
+        sessionState != null && sessionState.session.isActive;
 
-    return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 48),
-              _buildHeader(context),
-              const SizedBox(height: 48),
-              _buildStatsSection(context, totalFocusTimeAsync, currentStreakAsync),
-              const Spacer(),
-              _buildStartButton(context),
-              const SizedBox(height: 24),
-              _buildNavigationButtons(context),
-              const SizedBox(height: 32),
-            ],
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 96),
+      children: [
+        _buildHeader(context, l10n),
+        const SizedBox(height: 20),
+        _buildFocusSummaryCard(
+          context,
+          dashboardAsync.when(
+            data: (data) => data,
+            loading: () => const HomeDashboardData(
+              todayFocusTime: Duration.zero,
+              todayCompletedCount: 0,
+              bestStreak: 0,
+              weekActivity: [false, false, false, false, false, false, false],
+              recent: [],
+            ),
+            error: (_, __) => const HomeDashboardData(
+              todayFocusTime: Duration.zero,
+              todayCompletedCount: 0,
+              bestStreak: 0,
+              weekActivity: [false, false, false, false, false, false, false],
+              recent: [],
+            ),
           ),
         ),
-      ),
+        const SizedBox(height: 16),
+        _buildStartOrResumeButton(context, l10n, hasActiveSession),
+        const SizedBox(height: 20),
+        _buildStreakCard(context, l10n, dashboardAsync, currentStreakAsync),
+        const SizedBox(height: 28),
+        _buildRecentActivity(
+          context,
+          l10n,
+          dashboardAsync.when(
+            data: (data) => data.recent,
+            loading: () => const [],
+            error: (_, __) => const [],
+          ),
+        ),
+      ],
     );
   }
 
-  Widget _buildHeader(BuildContext context) {
+  Widget _buildHeader(BuildContext context, AppLocalizations l10n) {
+    final now = DateTime.now();
+    final dateLabel =
+        DateFormat('EEEE, MMM d', l10n.localeName).format(now);
+    final greeting = now.greeting(l10n);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                dateLabel,
+                style: const TextStyle(
+                  fontFamily: AppTheme.fontFamily,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 1.2,
+                  color: AppTheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: AppTheme.surfaceContainerHigh,
+                borderRadius: BorderRadius.circular(9999),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 6,
+                    height: 6,
+                    decoration: const BoxDecoration(
+                      color: AppTheme.secondaryColor,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  const Text(
+                    'Calm Mind',
+                    style: TextStyle(
+                      fontFamily: AppTheme.fontFamily,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.4,
+                      color: AppTheme.secondaryColor,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 14),
         Text(
-          DateTime.now().greeting,
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-            color: AppTheme.textSecondaryColor,
-          ),
+          greeting,
+          style: Theme.of(context).textTheme.headlineMedium,
         ),
         const SizedBox(height: 4),
         Text(
-          "Today's focus",
-          style: Theme.of(context).textTheme.headlineSmall,
+          'Your scheduled deep session is ready.',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 14),
         ),
       ],
     );
   }
 
-  Widget _buildStatsSection(BuildContext context, AsyncValue<Duration> totalFocusTimeAsync, AsyncValue<int> currentStreakAsync) {
-    return Row(
-      children: [
-        Expanded(
-          child: totalFocusTimeAsync.when(
-            data: (duration) => _buildStatCard(
-              context,
-              'Focus Time',
-              duration.formattedShort,
-              Icons.timer_outlined,
-            ),
-            loading: () => _buildStatCard(
-              context,
-              'Focus Time',
-              '...',
-              Icons.timer_outlined,
-            ),
-            error: (_, __) => _buildStatCard(
-              context,
-              'Focus Time',
-              'Error',
-              Icons.timer_outlined,
-            ),
-          ),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: currentStreakAsync.when(
-            data: (streak) => _buildStatCard(
-              context,
-              'Streak',
-              '$streak ${streak == 1 ? 'day' : 'days'}',
-              Icons.local_fire_department_outlined,
-            ),
-            loading: () => _buildStatCard(
-              context,
-              'Streak',
-              '...',
-              Icons.local_fire_department_outlined,
-            ),
-            error: (_, __) => _buildStatCard(
-              context,
-              'Streak',
-              'Error',
-              Icons.local_fire_department_outlined,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildStatCard(
+  Widget _buildFocusSummaryCard(
     BuildContext context,
-    String label,
-    String value,
-    IconData icon,
+    HomeDashboardData data,
   ) {
+    final goal = AppConstants.dailyFocusGoalMinutes.minutes;
+    final goalLabel = goal.formattedShort;
+    final percent = goal.inSeconds == 0
+        ? 0.0
+        : (data.todayFocusTime.inSeconds / goal.inSeconds).clamp(0.0, 1.0);
+    final percentLabel = (percent * 100).round();
+
     return Container(
-      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppTheme.surfaceColor,
-        borderRadius: BorderRadius.circular(12),
+        color: AppTheme.cardColor,
+        borderRadius: BorderRadius.circular(16),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Stack(
         children: [
-          Icon(icon, color: AppTheme.primaryColor, size: 24),
-          const SizedBox(height: 12),
-          Text(
-            value,
-            style: Theme.of(context).textTheme.headlineSmall,
+          Positioned(
+            right: -48,
+            top: -48,
+            child: Container(
+              width: 192,
+              height: 192,
+              decoration: BoxDecoration(
+                color: AppTheme.primaryContainer.withValues(alpha: 0.12),
+                shape: BoxShape.circle,
+              ),
+            ),
           ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: Theme.of(context).textTheme.bodySmall,
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        "Today's Focus",
+                        style: TextStyle(
+                          fontFamily: AppTheme.fontFamily,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 1.4,
+                          color: AppTheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ),
+                    Icon(
+                      Icons.graphic_eq,
+                      size: 20,
+                      color: AppTheme.primaryColor,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
+                  children: [
+                    Text(
+                      data.todayFocusTime.formattedShort,
+                      style: Theme.of(context).textTheme.displayMedium,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      '/ $goalLabel',
+                      style: const TextStyle(
+                        fontFamily: AppTheme.fontFamily,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(9999),
+                  child: LinearProgressIndicator(
+                    value: percent,
+                    minHeight: 6,
+                    backgroundColor: AppTheme.surfaceContainerHigh,
+                    valueColor: const AlwaysStoppedAnimation(
+                      AppTheme.primaryContainer,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 5,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppTheme.surfaceContainerHigh,
+                        borderRadius: BorderRadius.circular(9999),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 8,
+                            height: 8,
+                            decoration: const BoxDecoration(
+                              color: AppTheme.primaryContainer,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            '${data.todayCompletedCount} '
+                            '${data.todayCompletedCount == 1 ? 'session' : 'sessions'} completed',
+                            style: const TextStyle(
+                              fontFamily: AppTheme.fontFamily,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: AppTheme.onSurface,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Spacer(),
+                    Text(
+                      '$percentLabel% goal',
+                      style: const TextStyle(
+                        fontFamily: AppTheme.fontFamily,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.primaryColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildStartButton(BuildContext context) {
+  Widget _buildStartOrResumeButton(
+    BuildContext context,
+    AppLocalizations l10n,
+    bool hasActiveSession,
+  ) {
+    final label = hasActiveSession ? l10n.homeResumeSession : l10n.homeStartButton;
+    final icon = hasActiveSession ? Icons.timer_rounded : Icons.play_arrow_rounded;
+
     return SizedBox(
       width: double.infinity,
-      height: 56,
-      child: ElevatedButton(
-        onPressed: () => context.push('/pre-session'),
-        child: const Text('Start Focus'),
+      height: 60,
+      child: FilledButton.icon(
+        onPressed: () => hasActiveSession
+            ? context.go('/focus')
+            : context.push('/pre-session'),
+        icon: Icon(icon, size: 24),
+        label: Text(label),
+        style: FilledButton.styleFrom(
+          backgroundColor: AppTheme.primaryContainer,
+          foregroundColor: AppTheme.onPrimaryContainer,
+          elevation: 0,
+          shape: const StadiumBorder(),
+          textStyle: const TextStyle(
+            fontFamily: AppTheme.fontFamily,
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+          shadowColor: AppTheme.primaryContainer.withValues(alpha: 0.4),
+        ).copyWith(
+          elevation: const WidgetStatePropertyAll(8),
+        ),
       ),
     );
   }
 
-  Widget _buildNavigationButtons(BuildContext context) {
-    return Row(
+  Widget _buildStreakCard(
+    BuildContext context,
+    AppLocalizations l10n,
+    AsyncValue<HomeDashboardData> dashboardAsync,
+    AsyncValue<int> currentStreakAsync,
+  ) {
+    final data = dashboardAsync.when(
+      data: (d) => d,
+      loading: () => null,
+      error: (_, __) => null,
+    );
+    final streak = currentStreakAsync.maybeWhen(
+      data: (v) => v,
+      orElse: () => 0,
+    );
+    final bestStreak = data?.bestStreak ?? 0;
+    final week = data?.weekActivity ?? const <bool>[];
+
+    return Container(
+      decoration: BoxDecoration(
+        color: AppTheme.cardColor,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: AppTheme.tertiaryColor.withValues(alpha: 0.18),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.local_fire_department_rounded,
+                  size: 20,
+                  color: AppTheme.tertiaryColor,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '$streak ${streak == 1 ? 'day' : 'days'} streak',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    Text(
+                      'Best: $bestStreak days',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: AppTheme.surfaceContainerHigh,
+                  borderRadius: BorderRadius.circular(9999),
+                ),
+                child: const Text(
+                  'Active',
+                  style: TextStyle(
+                    fontFamily: AppTheme.fontFamily,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.secondaryColor,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          if (week.length == 7)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: List.generate(7, (i) {
+                final isToday = i == 6;
+                final active = week[i];
+                return _WeekDayDot(
+                  label: DateFormat('E', 'en_US')
+                      .format(DateTime.now().subtract(Duration(days: 6 - i)))
+                      .substring(0, 1),
+                  active: active,
+                  isToday: isToday,
+                );
+              }),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRecentActivity(
+    BuildContext context,
+    AppLocalizations l10n,
+    List<FocusSession> recent,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(
-          child: OutlinedButton(
-            onPressed: () => context.push('/statistics'),
-            child: const Text('Statistics'),
+        Row(
+          children: [
+            Text(
+              'Recent Activity',
+              style: Theme.of(context)
+                  .textTheme
+                  .headlineSmall
+                  ?.copyWith(fontSize: 18),
+            ),
+            const Spacer(),
+            TextButton(
+              onPressed: () => context.go('/statistics'),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('View all'),
+                  SizedBox(width: 2),
+                  Icon(Icons.chevron_right, size: 16),
+                ],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        if (recent.isEmpty)
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppTheme.cardColor,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: const Row(
+              children: [
+                Icon(Icons.history, size: 20, color: AppTheme.onSurfaceVariant),
+                SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'No sessions yet. Start your first focus session.',
+                    style: TextStyle(
+                      fontFamily: AppTheme.fontFamily,
+                      fontSize: 13,
+                      color: AppTheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          )
+        else
+          ...recent.map((session) => _RecentActivityItem(session: session)),
+      ],
+    );
+  }
+}
+
+class _WeekDayDot extends StatelessWidget {
+  const _WeekDayDot({
+    required this.label,
+    required this.active,
+    required this.isToday,
+  });
+
+  final String label;
+  final bool active;
+  final bool isToday;
+
+  @override
+  Widget build(BuildContext context) {
+    final fillColor = isToday
+        ? AppTheme.primaryColor
+        : AppTheme.primaryContainer;
+    final fgColor = isToday
+        ? AppTheme.onPrimaryColor
+        : AppTheme.onPrimaryContainer;
+
+    return Column(
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontFamily: AppTheme.fontFamily,
+            fontSize: 11,
+            fontWeight: isToday ? FontWeight.w700 : FontWeight.w400,
+            color: isToday ? AppTheme.primaryColor : AppTheme.onSurfaceVariant,
           ),
         ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: OutlinedButton(
-            onPressed: () => context.push('/settings'),
-            child: const Text('Settings'),
+        const SizedBox(height: 4),
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          width: 28,
+          height: 28,
+          decoration: BoxDecoration(
+            color: active ? fillColor : Colors.transparent,
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: active
+                  ? fillColor
+                  : AppTheme.surfaceContainerHighest,
+              width: 1,
+            ),
+            boxShadow: isToday
+                ? [
+                    BoxShadow(
+                      color: AppTheme.primaryColor.withValues(alpha: 0.35),
+                      blurRadius: 12,
+                    ),
+                  ]
+                : null,
           ),
+          child: active
+              ? Icon(
+                  Icons.check_rounded,
+                  size: 14,
+                  color: fgColor,
+                )
+              : null,
         ),
       ],
+    );
+  }
+}
+
+class _RecentActivityItem extends StatelessWidget {
+  const _RecentActivityItem({required this.session});
+
+  final FocusSession session;
+
+  @override
+  Widget build(BuildContext context) {
+    final completed = session.isCompleted;
+    final icon = completed ? Icons.code : Icons.menu_book;
+    final statusLabel = completed ? 'Completed' : 'Cancelled';
+    final statusColor =
+        completed ? AppTheme.primaryContainer : AppTheme.errorColor;
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppTheme.cardColor,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: AppTheme.surfaceContainerHigh,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(
+              icon,
+              size: 20,
+              color: completed
+                  ? AppTheme.primaryColor
+                  : AppTheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  session.task,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '${session.actualDuration.formattedShort} • ${session.startedAt.timeFormatted(AppLocalizations.of(context)!)}',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 8,
+                height: 8,
+                decoration: BoxDecoration(
+                  color: statusColor,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const SizedBox(width: 6),
+              Text(
+                statusLabel,
+                style: const TextStyle(
+                  fontFamily: AppTheme.fontFamily,
+                  fontSize: 11,
+                  color: AppTheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
+import 'package:focuslock/l10n/app_localizations.dart';
 import 'package:focuslock/shared/theme/app_theme.dart';
 import 'package:focuslock/core/services/native_focus_service.dart';
 import 'package:focuslock/features/apps/data/repositories/app_repository.dart';
@@ -14,19 +14,34 @@ class AppsPage extends ConsumerStatefulWidget {
   ConsumerState<AppsPage> createState() => _AppsPageState();
 }
 
-class _AppsPageState extends ConsumerState<AppsPage> {
+class _AppsPageState extends ConsumerState<AppsPage> with WidgetsBindingObserver {
   late AppRepository _appRepository;
   late NativeFocusService _nativeService;
   List<InstalledApp> _installedApps = [];
   List<BlockedApp> _blockedApps = [];
   bool _isLoading = true;
+  int _permissionsKey = 0;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _appRepository = ref.read(appRepositoryProvider);
     _nativeService = ref.read(nativeFocusServiceProvider);
     _loadApps();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      setState(() => _permissionsKey++);
+    }
   }
 
   Future<void> _loadApps() async {
@@ -72,26 +87,29 @@ class _AppsPageState extends ConsumerState<AppsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
-        title: const Text('Blocked Apps'),
+        title: Text(l10n.appsAppbarTitle),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : Column(
               children: [
-                _buildPermissionStatus(),
+                _buildPermissionStatus(l10n),
                 Expanded(
-                  child: _buildAppsList(),
+                  child: _buildAppsList(l10n),
                 ),
               ],
             ),
     );
   }
 
-  Widget _buildPermissionStatus() {
+  Widget _buildPermissionStatus(AppLocalizations l10n) {
     return FutureBuilder<Map<String, bool>>(
+      key: ValueKey(_permissionsKey),
       future: _nativeService.hasRequiredPermissions(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) return const SizedBox.shrink();
@@ -118,7 +136,7 @@ class _AppsPageState extends ConsumerState<AppsPage> {
                   const Icon(Icons.warning_amber_rounded, color: AppTheme.warningColor),
                   const SizedBox(width: 8),
                   Text(
-                    'Permissions Required',
+                    l10n.appsPermissionsRequired,
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                       color: AppTheme.warningColor,
                     ),
@@ -129,12 +147,12 @@ class _AppsPageState extends ConsumerState<AppsPage> {
               if (!hasUsage)
                 TextButton(
                   onPressed: () => _nativeService.openUsageSettings(),
-                  child: const Text('Grant Usage Access'),
+                  child: Text(l10n.appsGrantUsageAccess),
                 ),
               if (!hasAccessibility)
                 TextButton(
                   onPressed: () => _nativeService.openAccessibilitySettings(),
-                  child: const Text('Grant Accessibility Access'),
+                  child: Text(l10n.appsGrantAccessibilityAccess),
                 ),
             ],
           ),
@@ -143,7 +161,7 @@ class _AppsPageState extends ConsumerState<AppsPage> {
     );
   }
 
-  Widget _buildAppsList() {
+  Widget _buildAppsList(AppLocalizations l10n) {
     if (_installedApps.isEmpty) {
       return Center(
         child: Column(
@@ -152,7 +170,7 @@ class _AppsPageState extends ConsumerState<AppsPage> {
             const Icon(Icons.apps, size: 64, color: AppTheme.textSecondaryColor),
             const SizedBox(height: 16),
             Text(
-              'No apps found',
+              l10n.appsEmptyTitle,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                 color: AppTheme.textSecondaryColor,
               ),

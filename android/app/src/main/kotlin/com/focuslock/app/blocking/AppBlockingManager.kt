@@ -33,6 +33,8 @@ class AppBlockingManager(private val context: Context) {
         if (intent != null) {
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
             context.startActivity(intent)
+        } else {
+            android.util.Log.w("AppBlockingManager", "Launch intent is null for ${context.packageName}")
         }
     }
 }

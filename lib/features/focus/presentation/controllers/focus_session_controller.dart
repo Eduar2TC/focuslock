@@ -26,16 +26,64 @@ class FocusSessionController extends StateNotifier<FocusSessionState?> {
     this._sessionRepository,
   ) : super(null) {
     _stateSubscription = _engine.stateStream.listen((sessionState) {
-      state = sessionState;
+      if (mounted) {
+        _detectCycleCompletion(state, sessionState);
+        _detectSessionCompletion(state, sessionState);
+        state = sessionState;
+      }
     });
   }
 
-  void prepareSession(String task) {
+  void _detectCycleCompletion(
+      FocusSessionState? previous, FocusSessionState next) {
+    if (previous == null) return;
+
+    final sessionJustCompleted =
+        previous.session.status != SessionStatus.completed &&
+            next.session.status == SessionStatus.completed;
+    final focusJustEnded = !previous.isBreak && next.isBreak;
+
+    if (sessionJustCompleted || focusJustEnded) {
+      _playAlert();
+    }
+  }
+
+  bool _sessionSaved = false;
+  int? _persistedRowId;
+
+  void _detectSessionCompletion(
+      FocusSessionState? previous, FocusSessionState next) {
+    if (previous == null || _sessionSaved) return;
+
+    final justCompleted = previous.session.status != SessionStatus.completed &&
+        next.session.status == SessionStatus.completed;
+
+    if (justCompleted) {
+      _sessionSaved = true;
+      completeSession();
+    }
+  }
+
+  void _playAlert() {
+    try {
+      _nativeService.playAlert(
+        soundEnabled: _settings.soundEnabled,
+        vibrationEnabled: _settings.vibrationEnabled,
+      );
+    } catch (e) {
+      // Ignore alert errors
+    }
+  }
+
+  void prepareSession(String task, {int? durationMinutes}) {
+    _sessionSaved = false;
+    _persistedRowId = null;
     final session = FocusSession(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       task: task,
       startedAt: DateTime.now(),
-      plannedDuration: Duration(minutes: _settings.focusDuration),
+      plannedDuration:
+          Duration(minutes: durationMinutes ?? _settings.focusDuration),
       cycles: _settings.cycles,
       status: SessionStatus.preparing,
     );
@@ -46,20 +94,43 @@ class FocusSessionController extends StateNotifier<FocusSessionState?> {
     );
   }
 
-  void startSession() {
+  void startSession() async {
     if (state == null) return;
 
     final session = state!.session;
     _engine.setBreakDurations(_settings.shortBreak, _settings.longBreak);
     _engine.startSession(session);
 
-    final blockedApps = _appRepository.getActiveBlockedPackages();
-    _nativeService.startBlocking(blockedApps);
+    try {
+      await _persistActiveSession();
+    } catch (e) {
+      // Ignore persistence errors - session still runs in memory
+    }
 
-    _nativeService.startForegroundService(
-      'Focus Session Active',
-      '${session.task} - ${session.plannedDuration.inMinutes} minutes',
+    try {
+      final blockedApps = _appRepository.getActiveBlockedPackages();
+      await _nativeService.startBlocking(blockedApps,
+          allowEmergencyExit: _settings.allowEmergencyExit);
+
+      await _nativeService.startForegroundService(
+        'Focus Session Active',
+        '${session.task} - ${session.plannedDuration.inMinutes} minutes',
+      );
+    } catch (e) {
+      // Native service calls failed - session still runs but without blocking
+    }
+  }
+
+  Future<void> _persistActiveSession() async {
+    final engineState = _engine.currentState;
+    if (engineState == null) return;
+
+    await _sessionRepository.invalidateActiveSessions();
+
+    final session = engineState.session.copyWith(
+      status: SessionStatus.running,
     );
+    _persistedRowId = await _sessionRepository.saveSession(session);
   }
 
   void pause() {
@@ -70,24 +141,36 @@ class FocusSessionController extends StateNotifier<FocusSessionState?> {
     _engine.resume();
   }
 
-  void cancel() {
+  void cancel() async {
     _engine.cancel();
-    _nativeService.stopBlocking();
-    _nativeService.stopForegroundService();
-    _saveSession(SessionStatus.cancelled);
+    try {
+      await _nativeService.stopBlocking();
+      await _nativeService.stopForegroundService();
+    } catch (e) {
+      // Ignore native service errors on cleanup
+    }
+    await _saveSession(SessionStatus.cancelled);
   }
 
-  void completeSession() {
-    _engine.complete();
-    _nativeService.stopBlocking();
-    _nativeService.stopForegroundService();
-    _saveSession(SessionStatus.completed);
+  void completeSession() async {
+    final current = _engine.currentState;
+    if (current == null || current.session.status != SessionStatus.completed) {
+      _engine.complete();
+    }
+    try {
+      await _nativeService.stopBlocking();
+      await _nativeService.stopForegroundService();
+    } catch (e) {
+      // Ignore native service errors on cleanup
+    }
+    await _saveSession(SessionStatus.completed);
   }
 
-  void _saveSession(SessionStatus finalStatus) {
-    if (state == null) return;
+  Future<void> _saveSession(SessionStatus finalStatus) async {
+    final engineState = _engine.currentState;
+    if (engineState == null) return;
 
-    final session = state!.session;
+    final session = engineState.session;
     final score = ScoreCalculator.calculateSessionScore(
       completed: finalStatus == SessionStatus.completed,
       cyclesCompleted: session.completedCycles,
@@ -99,11 +182,17 @@ class FocusSessionController extends StateNotifier<FocusSessionState?> {
     final completedSession = session.copyWith(
       endedAt: DateTime.now(),
       status: finalStatus,
-      actualDuration: Duration(seconds: _engine.totalElapsedSeconds),
+      actualDuration: Duration(seconds: _engine.actualElapsedSeconds),
       score: score,
     );
 
-    _sessionRepository.saveSession(completedSession);
+    if (_persistedRowId != null) {
+      await _sessionRepository.updateSession(completedSession,
+          rowId: _persistedRowId);
+      _persistedRowId = null;
+    } else {
+      await _sessionRepository.saveSession(completedSession);
+    }
   }
 
   void onBlockedAppAttempted(String packageName) {
@@ -130,15 +219,21 @@ class FocusSessionController extends StateNotifier<FocusSessionState?> {
     );
   }
 
-  void recoverSession() {
+  void recoverSession() async {
     if (state == null) return;
 
     if (state!.session.isActive) {
-      _nativeService.startBlocking(_appRepository.getActiveBlockedPackages());
-      _nativeService.startForegroundService(
-        'Focus Session Active',
-        '${state!.session.task} - ${state!.remaining.inMinutes} minutes remaining',
-      );
+      try {
+        await _nativeService.startBlocking(
+            _appRepository.getActiveBlockedPackages(),
+            allowEmergencyExit: _settings.allowEmergencyExit);
+        await _nativeService.startForegroundService(
+          'Focus Session Active',
+          '${state!.session.task} - ${state!.remaining.inMinutes} minutes remaining',
+        );
+      } catch (e) {
+        // Ignore native service errors on recovery
+      }
     }
   }
 

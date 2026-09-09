@@ -12,7 +12,7 @@ void main() async {
 
   final prefs = await SharedPreferences.getInstance();
 
-  SystemChrome.setPreferredOrientations([
+  await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
@@ -20,7 +20,7 @@ void main() async {
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent,
     statusBarIconBrightness: Brightness.light,
-    systemNavigationBarColor: Color(0xFF0A0A0A),
+    systemNavigationBarColor: Color(0xFF121316),
     systemNavigationBarIconBrightness: Brightness.light,
   ));
 

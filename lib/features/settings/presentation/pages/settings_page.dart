@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:focuslock/l10n/app_localizations.dart';
 import 'package:focuslock/shared/theme/app_theme.dart';
 import 'package:focuslock/features/settings/data/repositories/settings_repository.dart';
 import 'package:focuslock/app/dependencies.dart';
-import 'package:focuslock/features/focus/data/repositories/focus_session_repository.dart';
 
 class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({super.key});
@@ -27,19 +27,21 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
-        title: const Text('Settings'),
+        title: Text(l10n.settingsAppbarTitle),
       ),
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
         children: [
           _buildSection(
-            'Focus',
+            l10n.settingsSectionFocus,
             [
               _buildDurationSetting(
-                'Focus Duration',
+                l10n.settingsFocusDuration,
                 _settings.focusDuration,
                 (value) async {
                   await _settings.setFocusDuration(value);
@@ -50,7 +52,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 suffix: 'min',
               ),
               _buildDurationSetting(
-                'Short Break',
+                l10n.settingsShortBreak,
                 _settings.shortBreak,
                 (value) async {
                   await _settings.setShortBreak(value);
@@ -61,7 +63,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 suffix: 'min',
               ),
               _buildDurationSetting(
-                'Long Break',
+                l10n.settingsLongBreak,
                 _settings.longBreak,
                 (value) async {
                   await _settings.setLongBreak(value);
@@ -72,7 +74,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 suffix: 'min',
               ),
               _buildDurationSetting(
-                'Cycles',
+                l10n.settingsCycles,
                 _settings.cycles,
                 (value) async {
                   await _settings.setCycles(value);
@@ -86,13 +88,21 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           ),
           const SizedBox(height: 24),
           _buildSection(
-            'Blocking',
+            l10n.settingsSectionBlocking,
             [
               _buildSwitchSetting(
-                'Allow Emergency Exit',
+                l10n.settingsAllowBypassBlocking,
                 _settings.allowEmergencyExit,
                 (value) async {
                   await _settings.setAllowEmergencyExit(value);
+                  setState(() {});
+                },
+              ),
+              _buildSwitchSetting(
+                l10n.settingsAllowCancelSession,
+                _settings.allowCancelSession,
+                (value) async {
+                  await _settings.setAllowCancelSession(value);
                   setState(() {});
                 },
               ),
@@ -100,10 +110,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           ),
           const SizedBox(height: 24),
           _buildSection(
-            'Notifications',
+            l10n.settingsSectionNotifications,
             [
               _buildSwitchSetting(
-                'Sound',
+                l10n.settingsSound,
                 _settings.soundEnabled,
                 (value) async {
                   await _settings.setSoundEnabled(value);
@@ -111,7 +121,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 },
               ),
               _buildSwitchSetting(
-                'Vibration',
+                l10n.settingsVibration,
                 _settings.vibrationEnabled,
                 (value) async {
                   await _settings.setVibrationEnabled(value);
@@ -122,17 +132,17 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           ),
           const SizedBox(height: 24),
           _buildSection(
-            'Data',
+            l10n.settingsSectionData,
             [
               _buildActionSetting(
-                'Export Data',
+                l10n.settingsExportData,
                 Icons.download_outlined,
-                _exportData,
+                () => _exportData(l10n),
               ),
               _buildActionSetting(
-                'Delete History',
+                l10n.settingsDeleteHistory,
                 Icons.delete_outline,
-                _showDeleteConfirmation,
+                () => _showDeleteConfirmation(l10n),
                 isDestructive: true,
               ),
             ],
@@ -142,89 +152,97 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     );
   }
 
-  Future<void> _exportData() async {
+  Future<void> _exportData(AppLocalizations l10n) async {
     try {
       final sessionRepository = ref.read(focusSessionRepositoryProvider);
       final sessions = await sessionRepository.getAllSessions();
-      
+
       final data = {
-        'sessions': sessions.map((s) => {
-          'id': s.id,
-          'task': s.task,
-          'startedAt': s.startedAt.toIso8601String(),
-          'endedAt': s.endedAt?.toIso8601String(),
-          'plannedDuration': s.plannedDuration.inSeconds,
-          'actualDuration': s.actualDuration.inSeconds,
-          'status': s.status.name,
-          'cycles': s.cycles,
-          'completedCycles': s.completedCycles,
-          'interruptionCount': s.interruptionCount,
-          'blockedAttemptCount': s.blockedAttemptCount,
-          'score': s.score,
-        }).toList(),
+        'sessions': sessions
+            .map((s) => {
+                  'id': s.id,
+                  'task': s.task,
+                  'startedAt': s.startedAt.toIso8601String(),
+                  'endedAt': s.endedAt?.toIso8601String(),
+                  'plannedDuration': s.plannedDuration.inSeconds,
+                  'actualDuration': s.actualDuration.inSeconds,
+                  'status': s.status.name,
+                  'cycles': s.cycles,
+                  'completedCycles': s.completedCycles,
+                  'interruptionCount': s.interruptionCount,
+                  'blockedAttemptCount': s.blockedAttemptCount,
+                  'score': s.score,
+                })
+            .toList(),
         'exportedAt': DateTime.now().toIso8601String(),
       };
 
       final jsonString = const JsonEncoder.withIndent('  ').convert(data);
       final directory = await getApplicationDocumentsDirectory();
-      final file = File('${directory.path}/focuslock_export_${DateTime.now().millisecondsSinceEpoch}.json');
+      final file = File(
+          '${directory.path}/focuslock_export_${DateTime.now().millisecondsSinceEpoch}.json');
       await file.writeAsString(jsonString);
 
       if (!mounted) return;
-      
-      await Share.shareXFiles([XFile(file.path)], text: 'FocusLock Data Export');
-      
+
+      await Share.shareXFiles([XFile(file.path)],
+          text: 'FocusLock Data Export');
+
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Data exported successfully')),
+        SnackBar(content: Text(l10n.settingsExportSuccess)),
       );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Export failed: $e'), backgroundColor: AppTheme.errorColor),
+        SnackBar(
+            content: Text(l10n.settingsExportError(e.toString())),
+            backgroundColor: AppTheme.errorColor),
       );
     }
   }
 
-  void _showDeleteConfirmation() {
+  void _showDeleteConfirmation(AppLocalizations l10n) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppTheme.surfaceColor,
-        title: const Text('Delete All History'),
-        content: const Text(
-          'This will permanently delete all your focus sessions. This action cannot be undone.',
-        ),
+        title: Text(l10n.settingsDeleteDialogTitle),
+        content: Text(l10n.settingsDeleteDialogContent),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(l10n.commonCancel),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(context);
-              _deleteAllHistory();
+              _deleteAllHistory(l10n);
             },
-            child: const Text('Delete', style: TextStyle(color: AppTheme.errorColor)),
+            child: Text(l10n.commonDelete,
+                style: const TextStyle(color: AppTheme.errorColor)),
           ),
         ],
       ),
     );
   }
 
-  Future<void> _deleteAllHistory() async {
+  Future<void> _deleteAllHistory(AppLocalizations l10n) async {
     try {
       final database = ref.read(databaseProvider);
       await database.delete(database.focusSessions).go();
-      
+
       if (!mounted) return;
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('History deleted successfully')),
+        SnackBar(content: Text(l10n.settingsDeleteSuccess)),
       );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Delete failed: $e'), backgroundColor: AppTheme.errorColor),
+        SnackBar(
+            content: Text(l10n.settingsDeleteError(e.toString())),
+            backgroundColor: AppTheme.errorColor),
       );
     }
   }
@@ -236,8 +254,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         Text(
           title,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            color: AppTheme.textSecondaryColor,
-          ),
+                color: AppTheme.textSecondaryColor,
+              ),
         ),
         const SizedBox(height: 12),
         Container(
@@ -276,8 +294,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               child: Text(
                 '$value$suffix',
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: AppTheme.primaryColor,
-                ),
+                      color: AppTheme.primaryColor,
+                    ),
               ),
             ),
           ),
@@ -299,7 +317,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       title: Text(label),
       value: value,
       onChanged: onChanged,
-      activeColor: AppTheme.primaryColor,
+      activeThumbColor: AppTheme.primaryColor,
     );
   }
 

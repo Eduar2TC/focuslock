@@ -29,6 +29,9 @@ class PomodoroEngine {
     plannedDuration: Duration(minutes: 25),
   );
 
+  Duration _totalPausedDuration = Duration.zero;
+  DateTime? _pauseStartTime;
+
   int get totalElapsedSeconds {
     if (_sessionStartTime == null) return 0;
     return DateTime.now().difference(_sessionStartTime!).inSeconds;
@@ -36,7 +39,12 @@ class PomodoroEngine {
 
   int get actualElapsedSeconds {
     if (_sessionStartTime == null) return 0;
-    return DateTime.now().difference(_sessionStartTime!).inSeconds;
+    final total = DateTime.now().difference(_sessionStartTime!);
+    final paused = _totalPausedDuration +
+        (_pauseStartTime != null
+            ? DateTime.now().difference(_pauseStartTime!)
+            : Duration.zero);
+    return (total - paused).inSeconds;
   }
 
   void setBreakDurations(int shortBreakMinutes, int longBreakMinutes) {
@@ -73,6 +81,7 @@ class PomodoroEngine {
 
     _session = _session.copyWith(status: newStatus);
     _stopTimer();
+    _pauseStartTime = DateTime.now();
 
     _currentState = _currentState!.copyWith(
       session: _session,
@@ -91,6 +100,12 @@ class PomodoroEngine {
     );
 
     _session = _session.copyWith(status: newStatus);
+
+    if (_pauseStartTime != null) {
+      _totalPausedDuration += DateTime.now().difference(_pauseStartTime!);
+      _pauseStartTime = null;
+    }
+
     _endTimestamp = DateTime.now().add(_currentState!.remaining);
 
     _startTimer();
@@ -152,6 +167,7 @@ class PomodoroEngine {
     _currentState = _currentState!.copyWith(
       isBreak: true,
       breakRemaining: breakDuration,
+      breakTotal: breakDuration,
     );
 
     _startBreakTimer();
@@ -172,6 +188,7 @@ class PomodoroEngine {
       isBreak: false,
       currentCycle: nextCycle,
       breakRemaining: Duration.zero,
+      breakTotal: Duration.zero,
     );
 
     _session = _session.copyWith(
@@ -197,7 +214,8 @@ class PomodoroEngine {
 
   void _startBreakTimer() {
     _stopBreakTimer();
-    _breakTimer = Timer.periodic(const Duration(seconds: 1), (_) => _breakTick());
+    _breakTimer =
+        Timer.periodic(const Duration(seconds: 1), (_) => _breakTick());
   }
 
   void _stopBreakTimer() {
@@ -247,12 +265,10 @@ class PomodoroEngine {
 
     if (completedCycles >= totalCycles) {
       complete();
+    } else if (completedCycles % 4 == 0) {
+      startBreak(Duration(minutes: _longBreakMinutes));
     } else {
-      final breakDuration = completedCycles % 4 == 0
-          ? Duration(minutes: _longBreakMinutes)
-          : Duration(minutes: _shortBreakMinutes);
-
-      startBreak(breakDuration);
+      startBreak(Duration(minutes: _shortBreakMinutes));
     }
   }
 

@@ -7,6 +7,7 @@ class FocusSessionState {
   final int currentCycle;
   final bool isBreak;
   final Duration breakRemaining;
+  final Duration breakTotal;
 
   const FocusSessionState({
     required this.session,
@@ -15,6 +16,7 @@ class FocusSessionState {
     this.currentCycle = 1,
     this.isBreak = false,
     this.breakRemaining = Duration.zero,
+    this.breakTotal = Duration.zero,
   });
 
   FocusSessionState copyWith({
@@ -24,6 +26,7 @@ class FocusSessionState {
     int? currentCycle,
     bool? isBreak,
     Duration? breakRemaining,
+    Duration? breakTotal,
   }) {
     return FocusSessionState(
       session: session ?? this.session,
@@ -32,13 +35,17 @@ class FocusSessionState {
       currentCycle: currentCycle ?? this.currentCycle,
       isBreak: isBreak ?? this.isBreak,
       breakRemaining: breakRemaining ?? this.breakRemaining,
+      breakTotal: breakTotal ?? this.breakTotal,
     );
   }
 
   double get progress {
+    if (isBreak) {
+      if (breakTotal.inSeconds <= 0) return 0;
+      final ratio = 1 - (breakRemaining.inSeconds / breakTotal.inSeconds);
+      return ratio.clamp(0.0, 1.0).toDouble();
+    }
     if (session.plannedDuration.inSeconds == 0) return 0;
     return 1 - (remaining.inSeconds / session.plannedDuration.inSeconds);
   }
-
-  String get progressPercent => '${(progress * 100).toInt()}%';
 }

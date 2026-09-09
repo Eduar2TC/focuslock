@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:focuslock/l10n/app_localizations.dart';
 import 'package:focuslock/shared/theme/app_theme.dart';
 import 'package:focuslock/app/dependencies.dart';
 import 'package:focuslock/features/focus/data/repositories/focus_session_repository.dart';
@@ -45,28 +47,30 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
-        title: const Text('Statistics'),
+        title: Text(l10n.statsAppbarTitle),
       ),
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
         children: [
-          _buildOverviewSection(),
+          _buildOverviewSection(l10n),
           const SizedBox(height: 24),
-          _buildTodaySection(),
+          _buildTodaySection(l10n),
         ],
       ),
     );
   }
 
-  Widget _buildOverviewSection() {
+  Widget _buildOverviewSection(AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Overview',
+          l10n.statsOverviewSection,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
             color: AppTheme.textSecondaryColor,
           ),
@@ -75,13 +79,13 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
         Row(
           children: [
             _buildStatCard(
-              'Sessions',
-              '$_completedSessions completed',
+              l10n.statsSessionsLabel,
+              l10n.statsSessionsValue(_completedSessions),
               Icons.check_circle_outline,
             ),
             const SizedBox(width: 16),
             _buildStatCard(
-              'Focus Time',
+              l10n.statsTotalFocusTimeLabel,
               _totalFocusTime.formatted,
               Icons.timer_outlined,
             ),
@@ -89,8 +93,8 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
         ),
         const SizedBox(height: 16),
         _buildStatCard(
-          'Current Streak',
-          '$_currentStreak days',
+          l10n.statsCurrentStreakLabel,
+          l10n.statsCurrentStreakValue(_currentStreak),
           Icons.local_fire_department_outlined,
           fullWidth: true,
         ),
@@ -98,13 +102,13 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
     );
   }
 
-  Widget _buildTodaySection() {
+  Widget _buildTodaySection(AppLocalizations l10n) {
     if (_todaySessions.isEmpty) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Today',
+            l10n.statsTodayLabel,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
               color: AppTheme.textSecondaryColor,
             ),
@@ -126,16 +130,25 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'No sessions today',
+                  l10n.statsEmptyTodayTitle,
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     color: AppTheme.textSecondaryColor,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Start a focus session to see your progress here.',
+                  l10n.statsEmptyTodayDescription,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodySmall,
+                ),
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: FilledButton(
+                    onPressed: () => context.push('/pre-session'),
+                    child: Text(l10n.statsEmptyTodayCta),
+                  ),
                 ),
               ],
             ),
@@ -148,18 +161,18 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Today (${_todaySessions.length} sessions)',
+          l10n.statsTodayWithCount(_todaySessions.length),
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
             color: AppTheme.textSecondaryColor,
           ),
         ),
         const SizedBox(height: 12),
-        ..._todaySessions.map((session) => _buildSessionCard(session)).toList(),
+        ..._todaySessions.map((session) => _buildSessionCard(session, l10n)),
       ],
     );
   }
 
-  Widget _buildSessionCard(FocusSession session) {
+  Widget _buildSessionCard(FocusSession session, AppLocalizations l10n) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
@@ -172,7 +185,7 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: session.isCompleted ? AppTheme.successColor.withOpacity(0.1) : AppTheme.errorColor.withOpacity(0.1),
+              color: session.isCompleted ? AppTheme.successColor.withValues(alpha: 0.12) : AppTheme.errorColor.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
@@ -201,7 +214,7 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
             ),
           ),
           Text(
-            session.startedAt.timeFormatted,
+            session.startedAt.timeFormatted(l10n),
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
               color: AppTheme.textSecondaryColor,
             ),

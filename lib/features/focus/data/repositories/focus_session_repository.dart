@@ -24,10 +24,14 @@ class FocusSessionRepository {
     );
   }
 
-  Future<void> updateSession(FocusSession session) async {
+  Future<void> invalidateActiveSessions() async {
+    await _database.invalidateActiveSessions();
+  }
+
+  Future<void> updateSession(FocusSession session, {int? rowId}) async {
     await _database.update(_database.focusSessions).replace(
       db.FocusSessionsCompanion(
-        id: Value(int.parse(session.id)),
+        id: Value(rowId ?? int.parse(session.id)),
         task: Value(session.task),
         startedAt: Value(session.startedAt),
         endedAt: Value(session.endedAt),

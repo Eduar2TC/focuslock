@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:focuslock/l10n/app_localizations.dart';
 import 'package:focuslock/shared/theme/app_theme.dart';
-import 'package:focuslock/core/extensions/extensions.dart';
 import 'package:focuslock/app/dependencies.dart';
 
 class OnboardingPage extends ConsumerStatefulWidget {
@@ -16,38 +16,45 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
-  final List<_OnboardingStep> _steps = [
-    _OnboardingStep(
-      title: 'Welcome to FocusLock',
-      subtitle: 'A tool for deep work, not another distraction.',
-      icon: Icons.lock_outline,
-    ),
-    _OnboardingStep(
-      title: 'Define Your Intention',
-      subtitle: 'Tell us what you want to accomplish. This creates commitment.',
-      icon: Icons.edit_outlined,
-    ),
-    _OnboardingStep(
-      title: 'Set Your Timer',
-      subtitle: 'Choose how long you want to focus. Start with 25 minutes.',
-      icon: Icons.timer_outlined,
-    ),
-    _OnboardingStep(
-      title: 'Choose Your Distractions',
-      subtitle: 'Select the apps that pull you away from your work.',
-      icon: Icons.block_outlined,
-    ),
-    _OnboardingStep(
-      title: 'Grant Permissions',
-      subtitle: 'FocusLock needs these to protect your focus time.',
-      icon: Icons.security_outlined,
-    ),
-    _OnboardingStep(
-      title: "You're Ready",
-      subtitle: 'Put your phone down and start working. We will handle the rest.',
-      icon: Icons.check_circle_outline,
-    ),
-  ];
+  List<_OnboardingStep> _steps = [];
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final l10n = AppLocalizations.of(context)!;
+    _steps = [
+      _OnboardingStep(
+        title: l10n.onboardingStep1Title,
+        subtitle: l10n.onboardingStep1Subtitle,
+        icon: Icons.lock_outline,
+      ),
+      _OnboardingStep(
+        title: l10n.onboardingStep2Title,
+        subtitle: l10n.onboardingStep2Subtitle,
+        icon: Icons.edit_outlined,
+      ),
+      _OnboardingStep(
+        title: l10n.onboardingStep3Title,
+        subtitle: l10n.onboardingStep3Subtitle,
+        icon: Icons.timer_outlined,
+      ),
+      _OnboardingStep(
+        title: l10n.onboardingStep4Title,
+        subtitle: l10n.onboardingStep4Subtitle,
+        icon: Icons.block_outlined,
+      ),
+      _OnboardingStep(
+        title: l10n.onboardingStep5Title,
+        subtitle: l10n.onboardingStep5Subtitle,
+        icon: Icons.security_outlined,
+      ),
+      _OnboardingStep(
+        title: l10n.onboardingStep6Title,
+        subtitle: l10n.onboardingStep6Subtitle,
+        icon: Icons.check_circle_outline,
+      ),
+    ];
+  }
 
   @override
   void dispose() {
@@ -77,6 +84,8 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       body: SafeArea(
@@ -146,7 +155,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                   ElevatedButton(
                     onPressed: _nextPage,
                     child: Text(
-                      _currentPage == _steps.length - 1 ? 'Get Started' : 'Next',
+                      _currentPage == _steps.length - 1 ? l10n.onboardingButtonStart : l10n.onboardingButtonNext,
                     ),
                   ),
                 ],
