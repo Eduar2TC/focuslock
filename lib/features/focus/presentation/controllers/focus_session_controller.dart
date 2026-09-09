@@ -8,6 +8,8 @@ import 'package:focuslock/features/settings/data/repositories/settings_repositor
 import 'package:focuslock/features/apps/data/repositories/app_repository.dart';
 import 'package:focuslock/core/services/native_focus_service.dart';
 import 'package:focuslock/features/focus/data/repositories/focus_session_repository.dart';
+import 'package:focuslock/l10n/app_localizations.dart';
+import 'package:focuslock/l10n/l10n_access.dart';
 
 class FocusSessionController extends StateNotifier<FocusSessionState?> {
   final PomodoroEngine _engine;
@@ -75,6 +77,22 @@ class FocusSessionController extends StateNotifier<FocusSessionState?> {
     }
   }
 
+  AppLocalizations? get _l10n => activeAppLocalizations.value;
+
+  String _notificationTitle() {
+    return _l10n?.notificationSessionActiveTitle ?? 'Focus Session Active';
+  }
+
+  String _notificationBody(String task, int minutes) {
+    return _l10n?.notificationSessionActiveBody(task, minutes) ??
+        '$task - $minutes minutes';
+  }
+
+  String _notificationRecoveringBody(String task, int minutes) {
+    return _l10n?.notificationSessionRecoveringBody(task, minutes) ??
+        '$task - $minutes minutes remaining';
+  }
+
   void prepareSession(String task, {int? durationMinutes}) {
     _sessionSaved = false;
     _persistedRowId = null;
@@ -113,8 +131,11 @@ class FocusSessionController extends StateNotifier<FocusSessionState?> {
           allowEmergencyExit: _settings.allowEmergencyExit);
 
       await _nativeService.startForegroundService(
-        'Focus Session Active',
-        '${session.task} - ${session.plannedDuration.inMinutes} minutes',
+        _notificationTitle(),
+        _notificationBody(
+          session.task,
+          session.plannedDuration.inMinutes,
+        ),
       );
     } catch (e) {
       // Native service calls failed - session still runs but without blocking
@@ -228,8 +249,11 @@ class FocusSessionController extends StateNotifier<FocusSessionState?> {
             _appRepository.getActiveBlockedPackages(),
             allowEmergencyExit: _settings.allowEmergencyExit);
         await _nativeService.startForegroundService(
-          'Focus Session Active',
-          '${state!.session.task} - ${state!.remaining.inMinutes} minutes remaining',
+          _notificationTitle(),
+          _notificationRecoveringBody(
+            state!.session.task,
+            state!.remaining.inMinutes,
+          ),
         );
       } catch (e) {
         // Ignore native service errors on recovery

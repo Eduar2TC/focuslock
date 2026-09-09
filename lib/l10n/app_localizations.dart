@@ -317,13 +317,13 @@ abstract class AppLocalizations {
   /// Task input label
   ///
   /// In en, this message translates to:
-  /// **'What are you going to work on?'**
+  /// **'What are you working on?'**
   String get presessionTaskLabel;
 
   /// Task input hint
   ///
   /// In en, this message translates to:
-  /// **'Build my Flutter app'**
+  /// **'e.g., Deep writing, Coding Sprint...'**
   String get presessionTaskHint;
 
   /// Duration selector label
@@ -383,13 +383,13 @@ abstract class AppLocalizations {
   /// Button to resume session
   ///
   /// In en, this message translates to:
-  /// **'Resume'**
+  /// **'Resume Focus'**
   String get focusResume;
 
   /// Button to pause session
   ///
   /// In en, this message translates to:
-  /// **'Pause'**
+  /// **'Pause Session'**
   String get focusPause;
 
   /// Cancel dialog title
@@ -805,6 +805,396 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Accumulate 10 hours of focus time'**
   String get achievementFocus10hDescription;
+
+  /// Home tab label
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get navHome;
+
+  /// Clear text field action
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get commonClear;
+
+  /// Header chip label
+  ///
+  /// In en, this message translates to:
+  /// **'Calm Mind'**
+  String get homeCalmMind;
+
+  /// Subtitle under the greeting
+  ///
+  /// In en, this message translates to:
+  /// **'Your scheduled deep session is ready.'**
+  String get homeScheduleReady;
+
+  /// Number of completed sessions today
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{count} session completed} other{{count} sessions completed}}'**
+  String homeSessionsCompleted(int count);
+
+  /// Percent of daily goal reached
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% goal'**
+  String homeGoalPercent(int percent);
+
+  /// Current streak in days
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{count} day streak} other{{count} days streak}}'**
+  String homeStreakLabel(int count);
+
+  /// Best streak value
+  ///
+  /// In en, this message translates to:
+  /// **'Best: {count} days'**
+  String homeBestStreak(int count);
+
+  /// Streak badge
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get homeStreakActive;
+
+  /// Recent sessions section title
+  ///
+  /// In en, this message translates to:
+  /// **'Recent Activity'**
+  String get homeRecentActivity;
+
+  /// Link to statistics
+  ///
+  /// In en, this message translates to:
+  /// **'View all'**
+  String get homeViewAll;
+
+  /// Empty recent activity message
+  ///
+  /// In en, this message translates to:
+  /// **'No sessions yet. Start your first focus session.'**
+  String get homeRecentEmpty;
+
+  /// Completed session status
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get homeRecentCompleted;
+
+  /// Cancelled session status
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get homeRecentCancelled;
+
+  /// Pre-session header chip
+  ///
+  /// In en, this message translates to:
+  /// **'Session Setup'**
+  String get presessionSetupChip;
+
+  /// Pre-session header title
+  ///
+  /// In en, this message translates to:
+  /// **'Ready to focus?'**
+  String get presessionReadyTitle;
+
+  /// Pre-session header subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'Set your intention and lock away distractions.'**
+  String get presessionReadySubtitle;
+
+  /// Task input required badge
+  ///
+  /// In en, this message translates to:
+  /// **'Required'**
+  String get presessionRequired;
+
+  /// Default task text prefilled in the input
+  ///
+  /// In en, this message translates to:
+  /// **'Build my Flutter application'**
+  String get presessionTaskDefault;
+
+  /// Custom duration action
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get presessionCustom;
+
+  /// Minutes unit label
+  ///
+  /// In en, this message translates to:
+  /// **'min'**
+  String get presessionMin;
+
+  /// Blocked apps section title
+  ///
+  /// In en, this message translates to:
+  /// **'Apps to block'**
+  String get presessionAppsToBlock;
+
+  /// Number of active blocked apps
+  ///
+  /// In en, this message translates to:
+  /// **'{count} active'**
+  String presessionActiveCount(int count);
+
+  /// Manage blocked apps action
+  ///
+  /// In en, this message translates to:
+  /// **'Manage'**
+  String get presessionManage;
+
+  /// Remaining blocked apps count
+  ///
+  /// In en, this message translates to:
+  /// **'+{count} more'**
+  String presessionMoreCount(int count);
+
+  /// Enforcement mode section title
+  ///
+  /// In en, this message translates to:
+  /// **'Enforcement Mode'**
+  String get presessionEnforcementMode;
+
+  /// Standard enforcement mode name
+  ///
+  /// In en, this message translates to:
+  /// **'Standard'**
+  String get modeStandard;
+
+  /// Standard enforcement mode description
+  ///
+  /// In en, this message translates to:
+  /// **'Leave when you need to without penalty. Keeps track of intentional exits.'**
+  String get modeStandardDescription;
+
+  /// Strict enforcement mode name
+  ///
+  /// In en, this message translates to:
+  /// **'Strict'**
+  String get modeStrict;
+
+  /// Strict enforcement mode description
+  ///
+  /// In en, this message translates to:
+  /// **'Leaving counts as an interruption. Emergency unlock requires a 60-second cooldown wait.'**
+  String get modeStrictDescription;
+
+  /// Recommended mode badge
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended'**
+  String get modeRecommended;
+
+  /// Start button including the chosen duration
+  ///
+  /// In en, this message translates to:
+  /// **'Start Focus ({min} min)'**
+  String presessionStartWithDuration(int min);
+
+  /// Tip about face-down display dimming
+  ///
+  /// In en, this message translates to:
+  /// **'Putting your phone face-down will automatically dim the display.'**
+  String get presessionFaceDownTip;
+
+  /// Strict mode chip label
+  ///
+  /// In en, this message translates to:
+  /// **'STRICT FOCUS'**
+  String get focusModeStrict;
+
+  /// Standard mode chip label
+  ///
+  /// In en, this message translates to:
+  /// **'STANDARD FOCUS'**
+  String get focusModeStandard;
+
+  /// Break indicator under the timer
+  ///
+  /// In en, this message translates to:
+  /// **'BREAK TIME'**
+  String get focusBreakTime;
+
+  /// Focus indicator under the timer
+  ///
+  /// In en, this message translates to:
+  /// **'RESTRICTED MODE'**
+  String get focusRestrictedMode;
+
+  /// Paused state indicator
+  ///
+  /// In en, this message translates to:
+  /// **'PAUSED'**
+  String get focusPausedLabel;
+
+  /// Message when no apps are blocked
+  ///
+  /// In en, this message translates to:
+  /// **'No apps blocked'**
+  String get focusNoAppsBlocked;
+
+  /// Message when one or more apps are blocked
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Phone is locked down • {count} app blocked} other{Phone is locked down • {count} apps blocked}}'**
+  String focusLockedDownCount(int count);
+
+  /// Zen mantra shown during focus
+  ///
+  /// In en, this message translates to:
+  /// **'Put your phone down and dive in.'**
+  String get focusZenPill;
+
+  /// Action to end the session early
+  ///
+  /// In en, this message translates to:
+  /// **'End session early'**
+  String get focusEndSessionEarly;
+
+  /// End session confirmation sheet title
+  ///
+  /// In en, this message translates to:
+  /// **'Break Focus Session?'**
+  String get focusSheetTitle;
+
+  /// End session confirmation sheet body
+  ///
+  /// In en, this message translates to:
+  /// **'Your current streak will reset for today.'**
+  String get focusSheetBody;
+
+  /// Button to cancel the session and unlock the phone
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock Phone'**
+  String get focusUnlockPhone;
+
+  /// Fallback task label when no intention is set
+  ///
+  /// In en, this message translates to:
+  /// **'Your focus session'**
+  String get blockedDefaultTask;
+
+  /// Fallback blocked app name
+  ///
+  /// In en, this message translates to:
+  /// **'This app'**
+  String get blockedFallbackApp;
+
+  /// Blocked app page badge
+  ///
+  /// In en, this message translates to:
+  /// **'Intervention Gate'**
+  String get blockedInterventionGate;
+
+  /// Blocked app page title
+  ///
+  /// In en, this message translates to:
+  /// **'Stay focused.'**
+  String get blockedStayFocused;
+
+  /// Blocked app page subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'Breathe. Your future self will thank you for finishing this session.'**
+  String get blockedBreathe;
+
+  /// Intention card label
+  ///
+  /// In en, this message translates to:
+  /// **'You chose to focus on'**
+  String get blockedYouChose;
+
+  /// Intention card badge
+  ///
+  /// In en, this message translates to:
+  /// **'Deep Work'**
+  String get blockedDeepWork;
+
+  /// Remaining focus time
+  ///
+  /// In en, this message translates to:
+  /// **'{time} remaining'**
+  String blockedTimeRemaining(String time);
+
+  /// Planned session duration
+  ///
+  /// In en, this message translates to:
+  /// **'Session target: {minutes}m'**
+  String blockedSessionTarget(int minutes);
+
+  /// Blocked app card title
+  ///
+  /// In en, this message translates to:
+  /// **'{app} is locked'**
+  String blockedAppIsLocked(String app);
+
+  /// Blocked app card subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled inside your focus shield'**
+  String get blockedFocusShield;
+
+  /// Strict mode warning title
+  ///
+  /// In en, this message translates to:
+  /// **'Strict Mode is active'**
+  String get blockedStrictActive;
+
+  /// Strict mode warning body
+  ///
+  /// In en, this message translates to:
+  /// **'Leaving this session early will be permanently logged as an interruption on your weekly streak.'**
+  String get blockedStrictWarning;
+
+  /// Primary action on blocked app page
+  ///
+  /// In en, this message translates to:
+  /// **'Return to focus'**
+  String get blockedReturnToFocus;
+
+  /// Secondary action on blocked app page
+  ///
+  /// In en, this message translates to:
+  /// **'End session anyway'**
+  String get blockedEndSessionAnyway;
+
+  /// Motivational hint under the actions
+  ///
+  /// In en, this message translates to:
+  /// **'Urges peak and fade within 3 minutes'**
+  String get blockedUrges;
+
+  /// Abandon session sheet title
+  ///
+  /// In en, this message translates to:
+  /// **'Break your streak?'**
+  String get blockedBreakStreak;
+
+  /// Abandon session sheet body
+  ///
+  /// In en, this message translates to:
+  /// **'You are only minutes away from locking in today\'s best focus session. Take three slow breaths instead.'**
+  String get blockedBreath;
+
+  /// Abandon session sheet primary action
+  ///
+  /// In en, this message translates to:
+  /// **'I will keep going'**
+  String get blockedKeepGoing;
+
+  /// Abandon session sheet secondary action
+  ///
+  /// In en, this message translates to:
+  /// **'Quit session'**
+  String get blockedQuitSession;
 }
 
 class _AppLocalizationsDelegate

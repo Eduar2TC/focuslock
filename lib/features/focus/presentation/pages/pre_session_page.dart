@@ -22,6 +22,8 @@ class _PreSessionPageState extends ConsumerState<PreSessionPage> {
 
   int get _selectedModeDuration => _selectedDuration;
 
+  bool _prefilled = false;
+
   @override
   void initState() {
     super.initState();
@@ -30,7 +32,15 @@ class _PreSessionPageState extends ConsumerState<PreSessionPage> {
     _selectedMode = settings.enforcementLevel == 'strict'
         ? 'strict'
         : 'normal';
-    _taskController.text = 'Build my Flutter application';
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_prefilled) {
+      _prefilled = true;
+      _taskController.text = AppLocalizations.of(context)!.presessionTaskDefault;
+    }
   }
 
   @override
@@ -62,7 +72,7 @@ class _PreSessionPageState extends ConsumerState<PreSessionPage> {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 16, 20, 40),
           children: [
-            _buildSetupHeader(),
+            _buildSetupHeader(l10n),
             const SizedBox(height: 20),
             _buildTaskInput(l10n),
             const SizedBox(height: 24),
@@ -74,14 +84,14 @@ class _PreSessionPageState extends ConsumerState<PreSessionPage> {
             const SizedBox(height: 28),
             _buildStartButton(l10n),
             const SizedBox(height: 16),
-            _buildFaceDownTip(),
+            _buildFaceDownTip(l10n),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildSetupHeader() {
+  Widget _buildSetupHeader(AppLocalizations l10n) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -116,14 +126,14 @@ class _PreSessionPageState extends ConsumerState<PreSessionPage> {
                         color: AppTheme.primaryColor.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(9999),
                       ),
-                      child: const Row(
+                      child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.verified_user, size: 14, color: AppTheme.primaryColor),
-                          SizedBox(width: 6),
+                          const Icon(Icons.verified_user, size: 14, color: AppTheme.primaryColor),
+                          const SizedBox(width: 6),
                           Text(
-                            'Session Setup',
-                            style: TextStyle(
+                            l10n.presessionSetupChip,
+                            style: const TextStyle(
                               fontFamily: AppTheme.fontFamily,
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
@@ -136,12 +146,12 @@ class _PreSessionPageState extends ConsumerState<PreSessionPage> {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      'Ready to focus?',
+                      l10n.presessionReadyTitle,
                       style: Theme.of(context).textTheme.headlineMedium,
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Set your intention and lock away distractions.',
+                      l10n.presessionReadySubtitle,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 14),
                     ),
                   ],
@@ -174,13 +184,13 @@ class _PreSessionPageState extends ConsumerState<PreSessionPage> {
           children: [
             Expanded(
               child: Text(
-                'What are you working on?',
+                l10n.presessionTaskLabel,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 15),
               ),
             ),
-            const Text(
-              'Required',
-              style: TextStyle(
+            Text(
+              l10n.presessionRequired,
+              style: const TextStyle(
                 fontFamily: AppTheme.fontFamily,
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
@@ -205,13 +215,13 @@ class _PreSessionPageState extends ConsumerState<PreSessionPage> {
                 child: TextField(
                   controller: _taskController,
                   style: const TextStyle(fontSize: 16, color: AppTheme.onSurface),
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     border: InputBorder.none,
                     enabledBorder: InputBorder.none,
                     focusedBorder: InputBorder.none,
-                    hintText: 'e.g., Deep writing, Coding Sprint...',
-                    hintStyle: TextStyle(color: AppTheme.onSurfaceVariant),
-                    contentPadding: EdgeInsets.symmetric(vertical: 15),
+                    hintText: l10n.presessionTaskHint,
+                    hintStyle: const TextStyle(color: AppTheme.onSurfaceVariant),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 15),
                   ),
                   textCapitalization: TextCapitalization.sentences,
                 ),
@@ -219,7 +229,7 @@ class _PreSessionPageState extends ConsumerState<PreSessionPage> {
               IconButton(
                 onPressed: _taskController.clear,
                 icon: const Icon(Icons.close, size: 18, color: AppTheme.onSurfaceVariant),
-                tooltip: 'Clear',
+                tooltip: l10n.commonClear,
               ),
             ],
           ),
@@ -236,7 +246,7 @@ class _PreSessionPageState extends ConsumerState<PreSessionPage> {
           children: [
             Expanded(
               child: Text(
-                'Duration',
+                l10n.presessionDurationLabel,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 15),
               ),
             ),
@@ -246,12 +256,12 @@ class _PreSessionPageState extends ConsumerState<PreSessionPage> {
                 padding: const EdgeInsets.symmetric(horizontal: 4),
                 minimumSize: const Size(0, 32),
               ),
-              child: const Row(
+              child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('Custom'),
-                  SizedBox(width: 2),
-                  Icon(Icons.tune, size: 14),
+                  Text(l10n.presessionCustom),
+                  const SizedBox(width: 2),
+                  const Icon(Icons.tune, size: 14),
                 ],
               ),
             ),
@@ -291,17 +301,17 @@ class _PreSessionPageState extends ConsumerState<PreSessionPage> {
                         ),
                       ),
                       const SizedBox(height: 2),
-                      Text(
-                        'min',
-                        style: TextStyle(
-                          fontFamily: AppTheme.fontFamily,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                          color: isSelected
-                              ? AppTheme.onPrimaryContainer
-                              : AppTheme.onSurfaceVariant,
+Text(
+                          l10n.presessionMin,
+                          style: TextStyle(
+                            fontFamily: AppTheme.fontFamily,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: isSelected
+                                ? AppTheme.onPrimaryContainer
+                                : AppTheme.onSurfaceVariant,
+                          ),
                         ),
-                      ),
                     ],
                   ),
                 ),
@@ -327,7 +337,7 @@ class _PreSessionPageState extends ConsumerState<PreSessionPage> {
               child: Row(
                 children: [
                   Text(
-                    'Apps to block',
+                    l10n.presessionAppsToBlock,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 15),
                   ),
                   const SizedBox(width: 8),
@@ -338,7 +348,7 @@ class _PreSessionPageState extends ConsumerState<PreSessionPage> {
                       borderRadius: BorderRadius.circular(9999),
                     ),
                     child: Text(
-                      '${apps.length} active',
+                      l10n.presessionActiveCount(apps.length),
                       style: const TextStyle(
                         fontFamily: AppTheme.fontFamily,
                         fontSize: 11,
@@ -357,7 +367,7 @@ class _PreSessionPageState extends ConsumerState<PreSessionPage> {
                 minimumSize: const Size(0, 32),
               ),
               icon: const Icon(Icons.edit, size: 15),
-              label: const Text('Manage'),
+              label: Text(l10n.presessionManage),
             ),
           ],
         ),
@@ -390,7 +400,7 @@ class _PreSessionPageState extends ConsumerState<PreSessionPage> {
                       borderRadius: BorderRadius.circular(9999),
                     ),
                     child: Text(
-                      '+$extra more',
+                      l10n.presessionMoreCount(extra),
                       style: const TextStyle(
                         fontFamily: AppTheme.fontFamily,
                         fontSize: 12,
@@ -412,24 +422,24 @@ class _PreSessionPageState extends ConsumerState<PreSessionPage> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 4),
           child: Text(
-            'Enforcement Mode',
+            l10n.presessionEnforcementMode,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 15),
           ),
         ),
         const SizedBox(height: 12),
         _ModeCard(
-          title: 'Standard',
+          title: l10n.modeStandard,
           icon: Icons.lock_open_rounded,
-          description: 'Leave when you need to without penalty. Keeps track of intentional exits.',
+          description: l10n.modeStandardDescription,
           selected: _selectedMode == 'normal',
           recommended: false,
           onTap: () => _selectMode('normal'),
         ),
         const SizedBox(height: 10),
         _ModeCard(
-          title: 'Strict',
+          title: l10n.modeStrict,
           icon: Icons.shield_rounded,
-          description: 'Leaving counts as an interruption. Emergency unlock requires a 60-second cooldown wait.',
+          description: l10n.modeStrictDescription,
           selected: _selectedMode == 'strict',
           recommended: true,
           onTap: () => _selectMode('strict'),
@@ -453,7 +463,7 @@ class _PreSessionPageState extends ConsumerState<PreSessionPage> {
       child: FilledButton.icon(
         onPressed: _startSession,
         icon: const Icon(Icons.bolt, size: 22, color: AppTheme.onPrimaryColor),
-        label: Text('Start Focus ($_selectedModeDuration min)'),
+        label: Text(l10n.presessionStartWithDuration(_selectedModeDuration)),
         style: FilledButton.styleFrom(
           backgroundColor: AppTheme.primaryColor,
           foregroundColor: AppTheme.onPrimaryColor,
@@ -486,19 +496,20 @@ class _PreSessionPageState extends ConsumerState<PreSessionPage> {
     }
   }
 
-  Widget _buildFaceDownTip() {
-    return const Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16),
+  Widget _buildFaceDownTip(AppLocalizations l10n) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.screen_rotation_alt, size: 16, color: AppTheme.primaryColor),
-          SizedBox(width: 8),
+          const Icon(Icons.screen_rotation_alt,
+              size: 16, color: AppTheme.primaryColor),
+          const SizedBox(width: 8),
           Expanded(
             child: Text(
-              'Putting your phone face-down will automatically dim the display.',
+              l10n.presessionFaceDownTip,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 fontFamily: AppTheme.fontFamily,
                 fontSize: 12,
                 color: AppTheme.onSurfaceVariant,
@@ -530,6 +541,7 @@ class _ModeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
@@ -586,9 +598,9 @@ class _ModeCard extends StatelessWidget {
                             color: AppTheme.primaryColor.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(9999),
                           ),
-                          child: const Text(
-                            'Recommended',
-                            style: TextStyle(
+                          child: Text(
+                            l10n.modeRecommended,
+                            style: const TextStyle(
                               fontFamily: AppTheme.fontFamily,
                               fontSize: 10,
                               fontWeight: FontWeight.w700,

@@ -120,21 +120,22 @@ class _FocusPageState extends ConsumerState<FocusPage>
           child: Column(
             children: [
               const SizedBox(height: 16),
-              _buildModeChip(isStrict, sessionState.currentCycle,
+              _buildModeChip(l10n, isStrict, sessionState.currentCycle,
                   sessionState.session.cycles),
               const Spacer(),
               _FocusRing(
                 fraction: fraction,
                 child: _buildTimerCenter(
+                  l10n,
                   remaining,
                   isBreak,
                   sessionState.isPaused,
                 ),
               ),
               const Spacer(),
-              _buildTaskContext(sessionState.session.task, blockedCount),
+              _buildTaskContext(l10n, sessionState.session.task, blockedCount),
               const SizedBox(height: 14),
-              _buildZenPill(),
+              _buildZenPill(l10n),
               const SizedBox(height: 28),
               if (isBreak)
                 _buildBreakActions(l10n)
@@ -148,7 +149,12 @@ class _FocusPageState extends ConsumerState<FocusPage>
     );
   }
 
-  Widget _buildModeChip(bool isStrict, int currentCycle, int totalCycles) {
+  Widget _buildModeChip(
+    AppLocalizations l10n,
+    bool isStrict,
+    int currentCycle,
+    int totalCycles,
+  ) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       decoration: BoxDecoration(
@@ -168,7 +174,7 @@ class _FocusPageState extends ConsumerState<FocusPage>
           ),
           const SizedBox(width: 8),
           Text(
-            isStrict ? 'STRICT FOCUS' : 'STANDARD FOCUS',
+            isStrict ? l10n.focusModeStrict : l10n.focusModeStandard,
             style: const TextStyle(
               fontFamily: AppTheme.fontFamily,
               fontSize: 12,
@@ -184,7 +190,7 @@ class _FocusPageState extends ConsumerState<FocusPage>
           ),
           const SizedBox(width: 8),
           Text(
-            'CYCLE $currentCycle OF $totalCycles',
+            l10n.focusCycleIndicator(currentCycle, totalCycles).toUpperCase(),
             style: const TextStyle(
               fontFamily: AppTheme.fontFamily,
               fontSize: 12,
@@ -199,6 +205,7 @@ class _FocusPageState extends ConsumerState<FocusPage>
   }
 
   Widget _buildTimerCenter(
+    AppLocalizations l10n,
     Duration remaining,
     bool isBreak,
     bool isPaused,
@@ -227,7 +234,7 @@ class _FocusPageState extends ConsumerState<FocusPage>
         ),
         const SizedBox(height: 10),
         Text(
-          isBreak ? 'BREAK TIME' : 'RESTRICTED MODE',
+          isBreak ? l10n.focusBreakTime : l10n.focusRestrictedMode,
           style: const TextStyle(
             fontFamily: AppTheme.fontFamily,
             fontSize: 11,
@@ -238,9 +245,9 @@ class _FocusPageState extends ConsumerState<FocusPage>
         ),
         if (isPaused) ...[
           const SizedBox(height: 6),
-          const Text(
-            'PAUSED',
-            style: TextStyle(
+          Text(
+            l10n.focusPausedLabel,
+            style: const TextStyle(
               fontFamily: AppTheme.fontFamily,
               fontSize: 11,
               fontWeight: FontWeight.w700,
@@ -253,7 +260,7 @@ class _FocusPageState extends ConsumerState<FocusPage>
     );
   }
 
-  Widget _buildTaskContext(String task, int blockedCount) {
+  Widget _buildTaskContext(AppLocalizations l10n, String task, int blockedCount) {
     return Column(
       children: [
         Text(
@@ -274,7 +281,7 @@ class _FocusPageState extends ConsumerState<FocusPage>
             ),
             const SizedBox(width: 6),
             Text(
-              checkedMessage(blockedCount),
+              checkedMessage(l10n, blockedCount),
               style: const TextStyle(
                 fontFamily: AppTheme.fontFamily,
                 fontSize: 13,
@@ -287,30 +294,28 @@ class _FocusPageState extends ConsumerState<FocusPage>
     );
   }
 
-  String checkedMessage(int blockedCount) {
+  String checkedMessage(AppLocalizations l10n, int blockedCount) {
     return blockedCount == 0
-        ? 'No apps blocked'
-        : blockedCount == 1
-            ? 'Phone is locked down • 1 app blocked'
-            : 'Phone is locked down • $blockedCount apps blocked';
+        ? l10n.focusNoAppsBlocked
+        : l10n.focusLockedDownCount(blockedCount);
   }
 
-  Widget _buildZenPill() {
+  Widget _buildZenPill(AppLocalizations l10n) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: AppTheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(12),
       ),
-      child: const Row(
+      child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.spa_rounded, size: 16, color: AppTheme.tertiaryColor),
-          SizedBox(width: 8),
+          const Icon(Icons.spa_rounded, size: 16, color: AppTheme.tertiaryColor),
+          const SizedBox(width: 8),
           Flexible(
             child: Text(
-              'Put your phone down and dive in.',
-              style: TextStyle(
+              l10n.focusZenPill,
+              style: const TextStyle(
                 fontFamily: AppTheme.fontFamily,
                 fontSize: 13,
                 fontStyle: FontStyle.italic,
@@ -350,7 +355,7 @@ class _FocusPageState extends ConsumerState<FocusPage>
               size: 20,
               color: isPaused ? AppTheme.onPrimaryContainer : AppTheme.primaryColor,
             ),
-            label: Text(isPaused ? 'Resume Focus' : 'Pause Session'),
+            label: Text(isPaused ? l10n.focusResume : l10n.focusPause),
           ),
         ),
         if (allowCancel) ...[
@@ -362,7 +367,7 @@ class _FocusPageState extends ConsumerState<FocusPage>
               visualDensity: VisualDensity.compact,
             ),
             icon: const Icon(Icons.power_settings_new_rounded, size: 15),
-            label: const Text('End session early'),
+            label: Text(l10n.focusEndSessionEarly),
           ),
         ],
       ],
@@ -378,7 +383,7 @@ class _FocusPageState extends ConsumerState<FocusPage>
         onPressed: () => _safeCall(() => controller.completeBreak()),
         icon: const Icon(Icons.skip_next_rounded,
             size: 20, color: AppTheme.onPrimaryContainer),
-        label: const Text('Skip Break'),
+        label: Text(l10n.focusSkipBreak),
         style: FilledButton.styleFrom(
           backgroundColor: AppTheme.primaryContainer,
           foregroundColor: AppTheme.onPrimaryContainer,
@@ -425,12 +430,12 @@ class _FocusPageState extends ConsumerState<FocusPage>
               ),
               const SizedBox(height: 14),
               Text(
-                'Break Focus Session?',
+                l10n.focusSheetTitle,
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
               const SizedBox(height: 6),
               Text(
-                'Your current streak will reset for today.',
+                l10n.focusSheetBody,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 13),
               ),
@@ -446,7 +451,7 @@ class _FocusPageState extends ConsumerState<FocusPage>
                           backgroundColor: AppTheme.surfaceContainerHighest,
                           side: BorderSide.none,
                         ),
-                        child: const Text('Keep Focusing'),
+                        child: Text(l10n.focusExitDialogStay),
                       ),
                     ),
                   ),
@@ -465,7 +470,7 @@ class _FocusPageState extends ConsumerState<FocusPage>
                           backgroundColor: AppTheme.errorContainer,
                           foregroundColor: AppTheme.onErrorContainer,
                         ),
-                        child: const Text('Unlock Phone'),
+                        child: Text(l10n.focusUnlockPhone),
                       ),
                     ),
                   ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:focuslock/l10n/app_localizations.dart';
 import 'package:focuslock/shared/theme/app_theme.dart';
 
 /// Persistent bottom navigation shell for the main app tabs.
@@ -38,6 +39,7 @@ class _ShellNavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       decoration: const BoxDecoration(
         color: Color(0xFF1A1B20),
@@ -50,19 +52,19 @@ class _ShellNavigationBar extends StatelessWidget {
           child: Row(
             children: [
               _NavItem(
-                label: 'Home',
+                label: l10n.navHome,
                 icon: Icons.timer_rounded,
                 selected: navigationShell.currentIndex == 0,
                 onTap: () => _goBranch(0),
               ),
               _NavItem(
-                label: 'Statistics',
+                label: l10n.statsAppbarTitle,
                 icon: Icons.bar_chart_rounded,
                 selected: navigationShell.currentIndex == 1,
                 onTap: () => _goBranch(1),
               ),
               _NavItem(
-                label: 'Settings',
+                label: l10n.settingsAppbarTitle,
                 icon: Icons.settings_rounded,
                 selected: navigationShell.currentIndex == 2,
                 onTap: () => _goBranch(2),

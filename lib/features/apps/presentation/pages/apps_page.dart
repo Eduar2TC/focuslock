@@ -60,7 +60,9 @@ class _AppsPageState extends ConsumerState<AppsPage> with WidgetsBindingObserver
       if (mounted) {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to load apps: $e')),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.appsErrorLoad('$e')),
+          ),
         );
       }
     }
