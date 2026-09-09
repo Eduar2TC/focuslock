@@ -1,5 +1,3 @@
-import 'dart:math';
-
 class ScoreCalculator {
   ScoreCalculator._();
 
@@ -25,11 +23,10 @@ class ScoreCalculator {
 
     score -= blockedAttemptCount * 3;
 
-    return max(0, score);
+    return score;
   }
 
   static String formatScore(int score) {
-    if (score >= 100) return '+$score';
     return score >= 0 ? '+$score' : '$score';
   }
 }

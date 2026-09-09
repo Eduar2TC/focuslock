@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:focuslock/l10n/app_localizations.dart';
 import 'package:focuslock/shared/theme/app_theme.dart';
-import 'package:focuslock/features/settings/data/repositories/settings_repository.dart';
-import 'package:focuslock/features/apps/data/repositories/app_repository.dart';
-import 'package:focuslock/features/apps/presentation/pages/apps_page.dart';
-import 'package:focuslock/features/focus/presentation/controllers/focus_session_controller.dart';
 import 'package:focuslock/app/dependencies.dart';
+import 'package:focuslock/features/apps/data/repositories/app_repository.dart';
 
 class PreSessionPage extends ConsumerStatefulWidget {
   const PreSessionPage({super.key});
@@ -16,14 +14,23 @@ class PreSessionPage extends ConsumerStatefulWidget {
 }
 
 class _PreSessionPageState extends ConsumerState<PreSessionPage> {
+  static const int _maxVisibleChips = 5;
+
   final TextEditingController _taskController = TextEditingController();
-  int _selectedDuration = 25;
+  late int _selectedDuration;
+  late String _selectedMode;
+
+  int get _selectedModeDuration => _selectedDuration;
 
   @override
   void initState() {
     super.initState();
     final settings = ref.read(settingsRepositoryProvider);
     _selectedDuration = settings.focusDuration;
+    _selectedMode = settings.enforcementLevel == 'strict'
+        ? 'strict'
+        : 'normal';
+    _taskController.text = 'Build my Flutter application';
   }
 
   @override
@@ -32,88 +39,270 @@ class _PreSessionPageState extends ConsumerState<PreSessionPage> {
     super.dispose();
   }
 
+  List<int> get _durationOptions {
+    final options = <int>[15, 25, 45, 60];
+    if (!options.contains(_selectedDuration)) {
+      options.insert(0, _selectedDuration);
+    }
+    return options;
+  }
+
+  List<BlockedApp> get _enabledBlockedApps {
+    final repository = ref.read(appRepositoryProvider);
+    return repository.getBlockedApps().where((app) => app.enabled).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
-      appBar: AppBar(
-        title: const Text('New Session'),
-      ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 24),
-              _buildTaskInput(),
-              const SizedBox(height: 32),
-              _buildDurationSelector(),
-              const SizedBox(height: 32),
-              _buildBlockedAppsSection(),
-              const SizedBox(height: 32),
-              _buildStartButton(),
-              const SizedBox(height: 32),
-            ],
-          ),
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 40),
+          children: [
+            _buildSetupHeader(),
+            const SizedBox(height: 20),
+            _buildTaskInput(l10n),
+            const SizedBox(height: 24),
+            _buildDurationSelector(l10n),
+            const SizedBox(height: 24),
+            _buildBlockedAppsSection(l10n),
+            const SizedBox(height: 24),
+            _buildEnforcementMode(l10n),
+            const SizedBox(height: 28),
+            _buildStartButton(l10n),
+            const SizedBox(height: 16),
+            _buildFaceDownTip(),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildTaskInput() {
+  Widget _buildSetupHeader() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppTheme.cardColor,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Stack(
+        children: [
+          Positioned(
+            right: -40,
+            top: -40,
+            child: Container(
+              width: 144,
+              height: 144,
+              decoration: BoxDecoration(
+                color: AppTheme.primaryColor.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+            ),
+          ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: AppTheme.primaryColor.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(9999),
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.verified_user, size: 14, color: AppTheme.primaryColor),
+                          SizedBox(width: 6),
+                          Text(
+                            'Session Setup',
+                            style: TextStyle(
+                              fontFamily: AppTheme.fontFamily,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 1,
+                              color: AppTheme.primaryColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Ready to focus?',
+                      style: Theme.of(context).textTheme.headlineMedium,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Set your intention and lock away distractions.',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 14),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 12),
+              const SizedBox(
+                width: 48,
+                height: 48,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: AppTheme.surfaceContainerHighest,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(Icons.lock_clock, size: 26, color: AppTheme.primaryColor),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTaskInput(AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'What are you going to work on?',
-          style: Theme.of(context).textTheme.titleMedium,
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                'What are you working on?',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 15),
+              ),
+            ),
+            const Text(
+              'Required',
+              style: TextStyle(
+                fontFamily: AppTheme.fontFamily,
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 1,
+                color: AppTheme.primaryColor,
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 12),
-        TextField(
-          controller: _taskController,
-          decoration: const InputDecoration(
-            hintText: 'Build my Flutter app',
+        const SizedBox(height: 10),
+        Container(
+          decoration: BoxDecoration(
+            color: AppTheme.surfaceContainerHigh,
+            borderRadius: BorderRadius.circular(12),
           ),
-          textCapitalization: TextCapitalization.sentences,
+          child: Row(
+            children: [
+              const SizedBox(width: 14),
+              const Icon(Icons.edit_note, size: 22, color: AppTheme.primaryColor),
+              const SizedBox(width: 12),
+              Expanded(
+                child: TextField(
+                  controller: _taskController,
+                  style: const TextStyle(fontSize: 16, color: AppTheme.onSurface),
+                  decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    hintText: 'e.g., Deep writing, Coding Sprint...',
+                    hintStyle: TextStyle(color: AppTheme.onSurfaceVariant),
+                    contentPadding: EdgeInsets.symmetric(vertical: 15),
+                  ),
+                  textCapitalization: TextCapitalization.sentences,
+                ),
+              ),
+              IconButton(
+                onPressed: _taskController.clear,
+                icon: const Icon(Icons.close, size: 18, color: AppTheme.onSurfaceVariant),
+                tooltip: 'Clear',
+              ),
+            ],
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildDurationSelector() {
+  Widget _buildDurationSelector(AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Duration',
-          style: Theme.of(context).textTheme.titleMedium,
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                'Duration',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 15),
+              ),
+            ),
+            TextButton(
+              onPressed: () {},
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                minimumSize: const Size(0, 32),
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('Custom'),
+                  SizedBox(width: 2),
+                  Icon(Icons.tune, size: 14),
+                ],
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 12),
         Row(
-          children: [15, 25, 30, 45, 60].map((duration) {
-            final isSelected = _selectedDuration == duration;
+          children: _durationOptions.map((minutes) {
+            final isSelected = _selectedDuration == minutes;
             return Expanded(
               child: GestureDetector(
-                onTap: () => setState(() => _selectedDuration = duration),
-                child: Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 4),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+                onTap: () => setState(() => _selectedDuration = minutes),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  curve: Curves.easeOut,
+                  margin: const EdgeInsets.symmetric(horizontal: 2.5),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
                   decoration: BoxDecoration(
-                    color: isSelected ? AppTheme.primaryColor : AppTheme.surfaceColor,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: isSelected ? AppTheme.primaryColor : AppTheme.dividerColor,
-                    ),
+                    color: isSelected
+                        ? AppTheme.primaryContainer
+                        : AppTheme.surfaceContainerHigh,
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Center(
-                    child: Text(
-                      '${duration}m',
-                      style: TextStyle(
-                        color: isSelected ? AppTheme.textColor : AppTheme.textSecondaryColor,
-                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                  child: Column(
+                    children: [
+                      Text(
+                        '$minutes',
+                        style: TextStyle(
+                          fontFamily: AppTheme.fontFamily,
+                          fontSize: 20,
+                          fontWeight: isSelected
+                              ? FontWeight.w700
+                              : FontWeight.w600,
+                          color: isSelected
+                              ? AppTheme.onPrimaryContainer
+                              : AppTheme.onSurfaceVariant,
+                        ),
                       ),
-                    ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'min',
+                        style: TextStyle(
+                          fontFamily: AppTheme.fontFamily,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: isSelected
+                              ? AppTheme.onPrimaryContainer
+                              : AppTheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -124,98 +313,353 @@ class _PreSessionPageState extends ConsumerState<PreSessionPage> {
     );
   }
 
-  Widget _buildBlockedAppsSection() {
-    final appRepository = ref.read(appRepositoryProvider);
-    final blockedApps = appRepository.getBlockedApps();
+  Widget _buildBlockedAppsSection(AppLocalizations l10n) {
+    final apps = _enabledBlockedApps;
+    final visible = apps.take(_maxVisibleChips).toList();
+    final extra = apps.length - visible.length;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              'Blocked Apps',
-              style: Theme.of(context).textTheme.titleMedium,
+            Expanded(
+              child: Row(
+                children: [
+                  Text(
+                    'Apps to block',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 15),
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: AppTheme.surfaceContainerHighest,
+                      borderRadius: BorderRadius.circular(9999),
+                    ),
+                    child: Text(
+                      '${apps.length} active',
+                      style: const TextStyle(
+                        fontFamily: AppTheme.fontFamily,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-            TextButton(
+            TextButton.icon(
               onPressed: () => context.push('/apps'),
-              child: const Text('Edit'),
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                minimumSize: const Size(0, 32),
+              ),
+              icon: const Icon(Icons.edit, size: 15),
+              label: const Text('Manage'),
             ),
           ],
         ),
-        if (blockedApps.isEmpty)
+        const SizedBox(height: 8),
+        if (apps.isEmpty)
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppTheme.surfaceColor,
-              borderRadius: BorderRadius.circular(8),
+              color: AppTheme.cardColor,
+              borderRadius: BorderRadius.circular(16),
             ),
-            child: Row(
-              children: [
-                const Icon(Icons.info_outline, color: AppTheme.textSecondaryColor, size: 20),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    'No apps blocked. Tap Edit to select apps.',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppTheme.textSecondaryColor,
-                    ),
-                  ),
-                ),
-              ],
+            child: Text(
+              l10n.presessionNoBlockedApps,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 13),
             ),
           )
         else
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children: blockedApps
-                .where((app) => app.enabled)
-                .map((app) => Chip(
-                      label: Text(app.appName),
-                      backgroundColor: AppTheme.surfaceColor,
-                      side: const BorderSide(color: AppTheme.dividerColor),
-                    ))
-                .toList(),
+            children: [
+              ...visible.map((app) => _AppBlockChip(app: app)),
+              if (extra > 0)
+                GestureDetector(
+                  onTap: () => context.push('/apps'),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: AppTheme.cardColor,
+                      borderRadius: BorderRadius.circular(9999),
+                    ),
+                    child: Text(
+                      '+$extra more',
+                      style: const TextStyle(
+                        fontFamily: AppTheme.fontFamily,
+                        fontSize: 12,
+                        color: AppTheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
           ),
       ],
     );
   }
 
-  void _showError(String message) {
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: AppTheme.errorColor,
+  Widget _buildEnforcementMode(AppLocalizations l10n) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: Text(
+            'Enforcement Mode',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 15),
+          ),
+        ),
+        const SizedBox(height: 12),
+        _ModeCard(
+          title: 'Standard',
+          icon: Icons.lock_open_rounded,
+          description: 'Leave when you need to without penalty. Keeps track of intentional exits.',
+          selected: _selectedMode == 'normal',
+          recommended: false,
+          onTap: () => _selectMode('normal'),
+        ),
+        const SizedBox(height: 10),
+        _ModeCard(
+          title: 'Strict',
+          icon: Icons.shield_rounded,
+          description: 'Leaving counts as an interruption. Emergency unlock requires a 60-second cooldown wait.',
+          selected: _selectedMode == 'strict',
+          recommended: true,
+          onTap: () => _selectMode('strict'),
+        ),
+      ],
+    );
+  }
+
+  void _selectMode(String mode) {
+    if (_selectedMode == mode) return;
+    setState(() => _selectedMode = mode);
+    ref.read(settingsRepositoryProvider).setEnforcementLevel(mode);
+    ref.read(settingsRepositoryProvider).setAllowCancelSession(mode != 'strict');
+    ref.read(settingsRepositoryProvider).setAllowEmergencyExit(mode != 'strict');
+  }
+
+  Widget _buildStartButton(AppLocalizations l10n) {
+    return SizedBox(
+      width: double.infinity,
+      height: 56,
+      child: FilledButton.icon(
+        onPressed: _startSession,
+        icon: const Icon(Icons.bolt, size: 22, color: AppTheme.onPrimaryColor),
+        label: Text('Start Focus ($_selectedModeDuration min)'),
+        style: FilledButton.styleFrom(
+          backgroundColor: AppTheme.primaryColor,
+          foregroundColor: AppTheme.onPrimaryColor,
+          shape: const StadiumBorder(),
+          shadowColor: AppTheme.primaryColor.withValues(alpha: 0.25),
+        ).copyWith(
+          elevation: const WidgetStatePropertyAll(6),
+        ),
       ),
     );
   }
 
-  Widget _buildStartButton() {
-    return SizedBox(
-      width: double.infinity,
-      height: 56,
-      child: ElevatedButton(
-        onPressed: () {
-          final task = _taskController.text.trim();
-          if (task.isEmpty) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Please enter a task')),
-            );
-            return;
-          }
+  void _startSession() {
+    final task = _taskController.text.trim();
+    if (task.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context)!.presessionErrorEmptyTask)),
+      );
+      return;
+    }
 
-          try {
-            final controller = ref.read(focusSessionControllerProvider.notifier);
-            controller.prepareSession(task);
-            context.push('/focus');
-          } catch (e) {
-            _showError('Failed to prepare session: $e');
-          }
-        },
-        child: const Text('Start Focus'),
+    try {
+      final controller = ref.read(focusSessionControllerProvider.notifier);
+      controller.prepareSession(task, durationMinutes: _selectedDuration);
+      context.push('/focus');
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('$e')),
+      );
+    }
+  }
+
+  Widget _buildFaceDownTip() {
+    return const Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.screen_rotation_alt, size: 16, color: AppTheme.primaryColor),
+          SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              'Putting your phone face-down will automatically dim the display.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontFamily: AppTheme.fontFamily,
+                fontSize: 12,
+                color: AppTheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ModeCard extends StatelessWidget {
+  const _ModeCard({
+    required this.title,
+    required this.icon,
+    required this.description,
+    required this.selected,
+    required this.recommended,
+    required this.onTap,
+  });
+
+  final String title;
+  final IconData icon;
+  final String description;
+  final bool selected;
+  final bool recommended;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOut,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: selected
+              ? AppTheme.surfaceContainerHighest
+              : AppTheme.surfaceContainerHigh,
+          borderRadius: BorderRadius.circular(12),
+          border: selected
+              ? Border.all(color: AppTheme.primaryColor.withValues(alpha: 0.4), width: 1)
+              : null,
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                width: 20,
+                height: 20,
+                decoration: BoxDecoration(
+                  color: selected
+                      ? AppTheme.primaryColor
+                      : AppTheme.surfaceContainerHighest,
+                  shape: BoxShape.circle,
+                ),
+                child: selected
+                    ? const Icon(Icons.circle, size: 8, color: AppTheme.onPrimaryColor)
+                    : null,
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          title,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                      ),
+                      if (recommended)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: AppTheme.primaryColor.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(9999),
+                          ),
+                          child: const Text(
+                            'Recommended',
+                            style: TextStyle(
+                              fontFamily: AppTheme.fontFamily,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 0.8,
+                              color: AppTheme.primaryColor,
+                            ),
+                          ),
+                        )
+                      else
+                        Icon(icon, size: 18, color: AppTheme.onSurfaceVariant),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    description,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 13),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _AppBlockChip extends StatelessWidget {
+  const _AppBlockChip({required this.app});
+
+  final BlockedApp app;
+
+  @override
+  Widget build(BuildContext context) {
+    final monogram = app.appName.isNotEmpty
+        ? app.appName.substring(0, 1).toUpperCase()
+        : app.packageName.substring(0, 1).toUpperCase();
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      decoration: BoxDecoration(
+        color: AppTheme.surfaceContainerHigh,
+        borderRadius: BorderRadius.circular(9999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 20,
+            height: 20,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: AppTheme.surfaceContainerHighest,
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Text(
+              monogram,
+              style: const TextStyle(
+                fontFamily: AppTheme.fontFamily,
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+                color: AppTheme.onSurface,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            app.appName,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 12),
+          ),
+        ],
       ),
     );
   }

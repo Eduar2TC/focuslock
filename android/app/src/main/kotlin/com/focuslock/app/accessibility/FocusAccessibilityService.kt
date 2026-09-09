@@ -17,24 +17,38 @@ class FocusAccessibilityService : AccessibilityService() {
         private const val TAG = "FocusAccessibility"
         private var instance: FocusAccessibilityService? = null
         private var blockedPackages: Set<String> = emptySet()
-        private var interventionCallback: ((String) -> Unit)? = null
+        private var isBlockingActive = false
+        private var allowEmergencyExit = false
+        private var lastBlockedPackage: String? = null
 
         fun isRunning(): Boolean = instance != null
 
+        fun getAndClearLastBlockedPackage(): String? {
+            val blocked = lastBlockedPackage
+            lastBlockedPackage = null
+            return blocked
+        }
+
         fun isPermissionGranted(context: Context): Boolean {
-            val service = ComponentName(context, FocusAccessibilityService::class.java).flattenToShortString()
+            val componentName = ComponentName(context, FocusAccessibilityService::class.java)
+            val service = componentName.flattenToShortString()
             val enabledServices = Settings.Secure.getString(
                 context.contentResolver,
                 Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
             ) ?: return false
+            Log.d(TAG, "Checking permission - expected: $service")
+            Log.d(TAG, "Enabled services: $enabledServices")
             val colonSplitter = TextUtils.SimpleStringSplitter(':')
             colonSplitter.setString(enabledServices)
             while (colonSplitter.hasNext()) {
                 val componentName = colonSplitter.next()
+                Log.d(TAG, "Found service: $componentName")
                 if (componentName.equals(service, ignoreCase = true)) {
+                    Log.d(TAG, "Permission GRANTED")
                     return true
                 }
             }
+            Log.d(TAG, "Permission NOT granted")
             return false
         }
 
@@ -42,13 +56,18 @@ class FocusAccessibilityService : AccessibilityService() {
             blockedPackages = packages
         }
 
-        fun setInterventionCallback(callback: ((String) -> Unit)?) {
-            interventionCallback = callback
+        fun setBlockingActive(active: Boolean) {
+            isBlockingActive = active
+        }
+
+        fun setAllowEmergencyExit(allowed: Boolean) {
+            allowEmergencyExit = allowed
         }
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         if (event == null) return
+        if (!isBlockingActive) return
 
         if (event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED ||
             event.eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED) {
@@ -59,9 +78,10 @@ class FocusAccessibilityService : AccessibilityService() {
 
             if (blockedPackages.contains(packageName)) {
                 Log.d(TAG, "Blocked app detected: $packageName")
-                // Cerrar la app bloqueada y volver a FocusLock
-                interventionCallback?.invoke(packageName)
-                navigateToFocusApp()
+                lastBlockedPackage = packageName
+                if (!allowEmergencyExit) {
+                    navigateToFocusApp()
+                }
             }
         }
     }
@@ -86,7 +106,7 @@ class FocusAccessibilityService : AccessibilityService() {
                     AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED
             feedbackType = AccessibilityServiceInfo.FEEDBACK_GENERIC
             flags = AccessibilityServiceInfo.FLAG_INCLUDE_NOT_IMPORTANT_VIEWS
-            notificationTimeout = 100
+            notificationTimeout = 500
         }
 
         Log.d(TAG, "Accessibility service connected")

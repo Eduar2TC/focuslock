@@ -68,16 +68,17 @@ void main() {
       expect(scoreWith4Cycles, greaterThan(scoreWith1Cycle));
     });
 
-    test('score is never negative', () {
+    test('heavy blocking penalties can make even a completed session negative',
+        () {
       final score = ScoreCalculator.calculateSessionScore(
-        completed: false,
+        completed: true,
         cyclesCompleted: 0,
         actualDuration: Duration.zero,
         interruptionCount: 0,
         blockedAttemptCount: 10,
       );
 
-      expect(score, greaterThanOrEqualTo(0));
+      expect(score, lessThan(0));
     });
   });
 

@@ -57,6 +57,19 @@ class AppDatabase extends _$AppDatabase {
         .get();
   }
 
+  Future<void> invalidateActiveSessions() async {
+    await customUpdate(
+      'UPDATE focus_sessions SET status = ?, ended_at = ? WHERE status IN (?, ?, ?)',
+      variables: [
+        Variable<String>('interrupted'),
+        Variable<DateTime>(DateTime.now()),
+        Variable<String>('running'),
+        Variable<String>('paused'),
+        Variable<String>('preparing'),
+      ],
+    );
+  }
+
   Future<List<FocusSession>> getSessionsByDate(DateTime date) {
     final startOfDay = DateTime(date.year, date.month, date.day);
     final endOfDay = startOfDay.add(const Duration(days: 1));
@@ -95,7 +108,8 @@ class AppDatabase extends _$AppDatabase {
       ..sort((a, b) => b.compareTo(a));
 
     int streak = 0;
-    DateTime expectedDate = DateTime.now();
+    final now = DateTime.now();
+    DateTime expectedDate = DateTime(now.year, now.month, now.day);
 
     for (final date in dates) {
       if (date.isAtSameMomentAs(expectedDate) || date.isAfter(expectedDate)) {

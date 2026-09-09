@@ -14,6 +14,9 @@ class AppConstants {
   static const int minBreakDuration = 1;
   static const int maxBreakDuration = 60;
 
+  /// Daily focus target used by the home dashboard "Today's Focus" card.
+  static const int dailyFocusGoalMinutes = 150;
+
   static const int scoreCompletedSession = 10;
   static const int scoreCycleCompleted = 2;
   static const int scoreFiveMinutesFocused = 1;

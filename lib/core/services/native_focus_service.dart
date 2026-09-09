@@ -41,9 +41,12 @@ class NativeFocusService {
     }
   }
 
-  Future<void> startBlocking(List<String> packageNames) async {
+  Future<void> startBlocking(List<String> packageNames, {bool allowEmergencyExit = false}) async {
     try {
-      await _channel.invokeMethod('startBlocking', packageNames);
+      await _channel.invokeMethod('startBlocking', {
+        'packages': packageNames,
+        'allowEmergencyExit': allowEmergencyExit,
+      });
     } on PlatformException catch (e) {
       throw Exception('Failed to start blocking: ${e.message}');
     }
@@ -63,6 +66,18 @@ class NativeFocusService {
       return result != null ? InstalledApp.fromMap(Map<String, dynamic>.from(result)) : null;
     } on PlatformException catch (e) {
       throw Exception('Failed to get foreground app: ${e.message}');
+    }
+  }
+
+  /// Returns the last blocked-app attempt (if any) reported by the native
+  /// accessibility service while a blocking session was active, then clears it.
+  Future<Map<String, String>?> getLastBlockedAppAttempt() async {
+    try {
+      final result = await _channel.invokeMethod<Map>('getLastBlockedAppAttempt');
+      if (result == null) return null;
+      return Map<String, String>.from(result);
+    } on PlatformException {
+      return null;
     }
   }
 
@@ -93,6 +108,19 @@ class NativeFocusService {
       await _channel.invokeMethod('stopForegroundService');
     } on PlatformException catch (e) {
       throw Exception('Failed to stop foreground service: ${e.message}');
+    }
+  }
+
+  Future<void> playAlert({required bool soundEnabled, required bool vibrationEnabled}) async {
+    try {
+      await _channel.invokeMethod('playAlert', {
+        'title': 'FocusLock',
+        'body': 'Cycle complete!',
+        'soundEnabled': soundEnabled,
+        'vibrationEnabled': vibrationEnabled,
+      });
+    } on PlatformException catch (e) {
+      throw Exception('Failed to play alert: ${e.message}');
     }
   }
 }

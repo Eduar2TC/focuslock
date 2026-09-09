@@ -1,3 +1,40 @@
+import 'package:focuslock/l10n/app_localizations.dart';
+
+extension DateTimeExtension on DateTime {
+  String greeting(AppLocalizations l10n) {
+    final hour = this.hour;
+    if (hour < 12) {
+      return l10n.greetingMorning;
+    } else if (hour < 18) {
+      return l10n.greetingAfternoon;
+    } else {
+      return l10n.greetingEvening;
+    }
+  }
+
+  DateTime get startOfDay {
+    return DateTime(year, month, day);
+  }
+
+  bool get isToday {
+    final now = DateTime.now();
+    return year == now.year && month == now.month && day == now.day;
+  }
+
+  bool get isYesterday {
+    final yesterday = DateTime.now().subtract(const Duration(days: 1));
+    return year == yesterday.year && month == yesterday.month && day == yesterday.day;
+  }
+
+  String timeFormatted(AppLocalizations l10n) {
+    final h = hour;
+    final m = minute;
+    final period = h >= 12 ? l10n.timePM : l10n.timeAM;
+    final displayHour = h == 0 ? 12 : (h > 12 ? h - 12 : h);
+    return '$displayHour:${m.toString().padLeft(2, '0')} $period';
+  }
+}
+
 extension DurationExtension on Duration {
   String get formatted {
     final hours = inHours;
@@ -6,8 +43,11 @@ extension DurationExtension on Duration {
 
     if (hours > 0) {
       return '${hours}h ${minutes}m';
+    } else if (minutes > 0) {
+      return '${minutes}m ${seconds}s';
+    } else {
+      return '${seconds}s';
     }
-    return '${minutes}m ${seconds}s';
   }
 
   String get formattedShort {
@@ -16,8 +56,9 @@ extension DurationExtension on Duration {
 
     if (hours > 0) {
       return '${hours}h ${minutes}m';
+    } else {
+      return '${minutes}m';
     }
-    return '${minutes}m';
   }
 
   String get timerFormatted {
@@ -27,50 +68,12 @@ extension DurationExtension on Duration {
 
     if (hours > 0) {
       return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+    } else {
+      return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
     }
-    return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
-  }
-
-  String get shortFormatted {
-    final minutes = inMinutes;
-    final seconds = inSeconds.remainder(60);
-
-    if (minutes > 0) {
-      return '${minutes}m ${seconds}s';
-    }
-    return '${seconds}s';
   }
 }
 
-extension DateTimeExtension on DateTime {
-  bool get isToday {
-    final now = DateTime.now();
-    return year == now.year && month == now.month && day == now.day;
-  }
-
-  bool get isYesterday {
-    final yesterday = DateTime.now().subtract(const Duration(days: 1));
-    return year == yesterday.year &&
-        month == yesterday.month &&
-        day == yesterday.day;
-  }
-
-  bool get isThisWeek {
-    final now = DateTime.now();
-    final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
-    return isAfter(startOfWeek.subtract(const Duration(days: 1)));
-  }
-
-  String get greeting {
-    final hour = DateTime.now().hour;
-    if (hour < 12) return 'Good morning';
-    if (hour < 17) return 'Good afternoon';
-    return 'Good evening';
-  }
-
-  String get timeFormatted {
-    final h = hour.toString().padLeft(2, '0');
-    final m = minute.toString().padLeft(2, '0');
-    return '$h:$m';
-  }
+extension IntDurationExtension on int {
+  Duration get minutes => Duration(minutes: this);
 }

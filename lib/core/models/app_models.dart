@@ -11,8 +11,8 @@ class InstalledApp {
 
   factory InstalledApp.fromMap(Map<String, dynamic> map) {
     return InstalledApp(
-      packageName: map['packageName'] as String,
-      appName: map['appName'] as String,
+      packageName: (map['packageName'] as String?) ?? '',
+      appName: (map['appName'] as String?) ?? 'Unknown',
       icon: map['icon'] as String?,
     );
   }
