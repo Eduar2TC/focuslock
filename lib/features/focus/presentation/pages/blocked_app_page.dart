@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:focuslock/l10n/app_localizations.dart';
 import 'package:focuslock/shared/theme/app_theme.dart';
 import 'package:focuslock/core/extensions/extensions.dart';
 import 'package:focuslock/app/dependencies.dart';
@@ -11,10 +12,11 @@ class BlockedAppPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final state = ref.watch(focusSessionControllerProvider);
     final attemptedPackage = ref.watch(blockedAppAttemptProvider);
     final session = state?.session;
-    final task = session?.task ?? 'Your focus session';
+    final task = session?.task ?? l10n.blockedDefaultTask;
     final remaining = state?.remaining ?? Duration.zero;
     final progress = state?.progress ?? 0.0;
     final planned = state?.session.plannedDuration ?? Duration.zero;
@@ -22,7 +24,7 @@ class BlockedAppPage extends ConsumerWidget {
         ref.read(settingsRepositoryProvider).enforcementLevel == 'strict';
     final allowCancel = ref.read(settingsRepositoryProvider).allowCancelSession;
 
-    final appName = _blockedAppName(ref, attemptedPackage);
+    final appName = _blockedAppName(ref, l10n, attemptedPackage);
 
     return PopScope(
       canPop: false,
@@ -35,27 +37,27 @@ class BlockedAppPage extends ConsumerWidget {
               const SizedBox(height: 12),
               const _Emblem(),
               const SizedBox(height: 20),
-              _buildBadge(),
+              _buildBadge(l10n),
               const SizedBox(height: 18),
               Text(
-                'Stay focused.',
+                l10n.blockedStayFocused,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.headlineLarge,
               ),
               const SizedBox(height: 6),
               Text(
-                'Breathe. Your future self will thank you for finishing this session.',
+                l10n.blockedBreathe,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 14),
               ),
               const SizedBox(height: 24),
-              _buildIntentionCard(context, task, remaining, progress, planned),
+              _buildIntentionCard(context, l10n, task, remaining, progress, planned),
               const SizedBox(height: 12),
-              _buildBlockedAppCard(context, appName),
+              _buildBlockedAppCard(context, l10n, appName),
               const SizedBox(height: 12),
-              if (isStrict) _buildStrictWarning(context),
+              if (isStrict) _buildStrictWarning(context, l10n),
               const SizedBox(height: 24),
-              _buildActionSuite(context, ref, allowCancel),
+              _buildActionSuite(context, l10n, ref, allowCancel),
             ],
           ),
         ),
@@ -63,8 +65,8 @@ class BlockedAppPage extends ConsumerWidget {
     );
   }
 
-  String _blockedAppName(WidgetRef ref, String? packageName) {
-    if (packageName == null) return 'This app';
+  String _blockedAppName(WidgetRef ref, AppLocalizations l10n, String? packageName) {
+    if (packageName == null) return l10n.blockedFallbackApp;
     final repository = ref.read(appRepositoryProvider);
     final match =
         repository.getBlockedApps().where((a) => a.packageName == packageName).toList();
@@ -74,7 +76,7 @@ class BlockedAppPage extends ConsumerWidget {
     return packageName;
   }
 
-  Widget _buildBadge() {
+  Widget _buildBadge(AppLocalizations l10n) {
     return Center(
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
@@ -82,10 +84,10 @@ class BlockedAppPage extends ConsumerWidget {
           color: AppTheme.surfaceContainerHigh,
           borderRadius: BorderRadius.circular(9999),
         ),
-        child: const Row(
+        child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            SizedBox(
+            const SizedBox(
               width: 6,
               height: 6,
               child: DecoratedBox(
@@ -95,10 +97,10 @@ class BlockedAppPage extends ConsumerWidget {
                 ),
               ),
             ),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
             Text(
-              'Intervention Gate',
-              style: TextStyle(
+              l10n.blockedInterventionGate,
+              style: const TextStyle(
                 fontFamily: AppTheme.fontFamily,
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
@@ -114,6 +116,7 @@ class BlockedAppPage extends ConsumerWidget {
 
   Widget _buildIntentionCard(
     BuildContext context,
+    AppLocalizations l10n,
     String task,
     Duration remaining,
     double progress,
@@ -130,10 +133,10 @@ class BlockedAppPage extends ConsumerWidget {
         children: [
           Row(
             children: [
-              const Expanded(
+              Expanded(
                 child: Text(
-                  'You chose to focus on',
-                  style: TextStyle(
+                  l10n.blockedYouChose,
+                  style: const TextStyle(
                     fontFamily: AppTheme.fontFamily,
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
@@ -149,9 +152,9 @@ class BlockedAppPage extends ConsumerWidget {
                   color: AppTheme.primaryContainer.withValues(alpha: 0.18),
                   borderRadius: BorderRadius.circular(9999),
                 ),
-                child: const Text(
-                  'Deep Work',
-                  style: TextStyle(
+                child: Text(
+                  l10n.blockedDeepWork,
+                  style: const TextStyle(
                     fontFamily: AppTheme.fontFamily,
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
@@ -195,7 +198,7 @@ class BlockedAppPage extends ConsumerWidget {
                             size: 14, color: AppTheme.primaryColor),
                         const SizedBox(width: 6),
                         Text(
-                          '${remaining.timerFormatted} remaining',
+                          l10n.blockedTimeRemaining(remaining.timerFormatted),
                           style: const TextStyle(
                             fontFamily: AppTheme.fontFamily,
                             fontSize: 13,
@@ -233,7 +236,7 @@ class BlockedAppPage extends ConsumerWidget {
               ),
               const Spacer(),
               Text(
-                'Session target: ${planned.inMinutes}m',
+                l10n.blockedSessionTarget(planned.inMinutes),
                 style: const TextStyle(
                   fontFamily: AppTheme.fontFamily,
                   fontSize: 11,
@@ -247,7 +250,11 @@ class BlockedAppPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildBlockedAppCard(BuildContext context, String appName) {
+  Widget _buildBlockedAppCard(
+    BuildContext context,
+    AppLocalizations l10n,
+    String appName,
+  ) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -272,14 +279,14 @@ class BlockedAppPage extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '$appName is locked',
+                  l10n.blockedAppIsLocked(appName),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.titleSmall,
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Scheduled inside your focus shield',
+                  l10n.blockedFocusShield,
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ],
@@ -292,7 +299,7 @@ class BlockedAppPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildStrictWarning(BuildContext context) {
+  Widget _buildStrictWarning(BuildContext context, AppLocalizations l10n) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -310,12 +317,12 @@ class BlockedAppPage extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Strict Mode is active',
+                  l10n.blockedStrictActive,
                   style: Theme.of(context).textTheme.titleSmall,
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Leaving this session early will be permanently logged as an interruption on your weekly streak.',
+                  l10n.blockedStrictWarning,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(height: 1.4),
                 ),
               ],
@@ -326,7 +333,12 @@ class BlockedAppPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildActionSuite(BuildContext context, WidgetRef ref, bool allowCancel) {
+  Widget _buildActionSuite(
+    BuildContext context,
+    AppLocalizations l10n,
+    WidgetRef ref,
+    bool allowCancel,
+  ) {
     return Column(
       children: [
         SizedBox(
@@ -336,7 +348,7 @@ class BlockedAppPage extends ConsumerWidget {
             onPressed: () => context.pop(),
             icon: const Icon(Icons.arrow_back_rounded,
                 size: 20, color: AppTheme.onPrimaryContainer),
-            label: const Text('Return to focus'),
+            label: Text(l10n.blockedReturnToFocus),
             style: FilledButton.styleFrom(
               backgroundColor: AppTheme.primaryContainer,
               foregroundColor: AppTheme.onPrimaryContainer,
@@ -350,27 +362,27 @@ class BlockedAppPage extends ConsumerWidget {
             width: double.infinity,
             height: 48,
             child: TextButton.icon(
-              onPressed: () => _showAbandonSheet(context, ref),
+              onPressed: () => _showAbandonSheet(context, l10n, ref),
               style: TextButton.styleFrom(
                 foregroundColor: AppTheme.onSurfaceVariant,
                 backgroundColor: AppTheme.cardColor,
                 shape: const StadiumBorder(),
               ),
               icon: const Icon(Icons.lock_open_rounded, size: 18),
-              label: const Text('End session anyway'),
+              label: Text(l10n.blockedEndSessionAnyway),
             ),
           ),
         ],
         const SizedBox(height: 14),
-        const Row(
+        Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.psychology_rounded,
+            const Icon(Icons.psychology_rounded,
                 size: 14, color: AppTheme.onSurfaceVariant),
-            SizedBox(width: 6),
+            const SizedBox(width: 6),
             Text(
-              'Urges peak and fade within 3 minutes',
-              style: TextStyle(
+              l10n.blockedUrges,
+              style: const TextStyle(
                 fontFamily: AppTheme.fontFamily,
                 fontSize: 12,
                 color: AppTheme.onSurfaceVariant,
@@ -382,7 +394,11 @@ class BlockedAppPage extends ConsumerWidget {
     );
   }
 
-  void _showAbandonSheet(BuildContext context, WidgetRef ref) {
+  void _showAbandonSheet(
+    BuildContext context,
+    AppLocalizations l10n,
+    WidgetRef ref,
+  ) {
     showModalBottomSheet<void>(
       context: context,
       backgroundColor: AppTheme.surfaceContainerHigh,
@@ -408,12 +424,12 @@ class BlockedAppPage extends ConsumerWidget {
               ),
               const SizedBox(height: 14),
               Text(
-                'Break your streak?',
+                l10n.blockedBreakStreak,
                 style: Theme.of(sheetContext).textTheme.headlineSmall,
               ),
               const SizedBox(height: 8),
               Text(
-                'You are only minutes away from locking in today\'s best focus session. Take three slow breaths instead.',
+                l10n.blockedBreath,
                 textAlign: TextAlign.center,
                 style:
                     Theme.of(sheetContext).textTheme.bodySmall?.copyWith(fontSize: 13),
@@ -429,7 +445,7 @@ class BlockedAppPage extends ConsumerWidget {
                     foregroundColor: AppTheme.onPrimaryColor,
                     shape: const StadiumBorder(),
                   ),
-                  child: const Text('I will keep going'),
+                  child: Text(l10n.blockedKeepGoing),
                 ),
               ),
               const SizedBox(height: 8),
@@ -446,7 +462,7 @@ class BlockedAppPage extends ConsumerWidget {
                     foregroundColor: AppTheme.errorColor,
                     shape: const StadiumBorder(),
                   ),
-                  child: const Text('Quit session'),
+                  child: Text(l10n.blockedQuitSession),
                 ),
               ),
             ],

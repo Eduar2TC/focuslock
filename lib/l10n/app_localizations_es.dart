@@ -123,10 +123,11 @@ class AppLocalizationsEs extends AppLocalizations {
   String get presessionAppbarTitle => 'Nueva Sesion';
 
   @override
-  String get presessionTaskLabel => 'En que vas a trabajar?';
+  String get presessionTaskLabel => '¿En qué estás trabajando?';
 
   @override
-  String get presessionTaskHint => 'Construir mi app Flutter';
+  String get presessionTaskHint =>
+      'p. ej., Escritura profunda, Sprint de código...';
 
   @override
   String get presessionDurationLabel => 'Duracion';
@@ -161,10 +162,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get focusSkipBreak => 'Saltar descanso';
 
   @override
-  String get focusResume => 'Reanudar';
+  String get focusResume => 'Reanudar Enfoque';
 
   @override
-  String get focusPause => 'Pausar';
+  String get focusPause => 'Pausar Sesión';
 
   @override
   String get focusCancelDialogTitle => 'Cancelar Sesion?';
@@ -397,4 +398,248 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get achievementFocus10hDescription =>
       'Acumula 10 horas de tiempo de enfoque';
+
+  @override
+  String get navHome => 'Inicio';
+
+  @override
+  String get commonClear => 'Limpiar';
+
+  @override
+  String get homeCalmMind => 'Mente en calma';
+
+  @override
+  String get homeScheduleReady => 'Tu sesión profunda programada está lista.';
+
+  @override
+  String homeSessionsCompleted(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count sesiones completadas',
+      one: '$count sesión completada',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeGoalPercent(int percent) {
+    return '$percent% de la meta';
+  }
+
+  @override
+  String homeStreakLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count días de racha',
+      one: '$count día de racha',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeBestStreak(int count) {
+    return 'Récord: $count días';
+  }
+
+  @override
+  String get homeStreakActive => 'Activo';
+
+  @override
+  String get homeRecentActivity => 'Actividad reciente';
+
+  @override
+  String get homeViewAll => 'Ver todo';
+
+  @override
+  String get homeRecentEmpty =>
+      'Aún no hay sesiones. Inicia tu primera sesión de enfoque.';
+
+  @override
+  String get homeRecentCompleted => 'Completada';
+
+  @override
+  String get homeRecentCancelled => 'Cancelada';
+
+  @override
+  String get presessionSetupChip => 'Configuración de Sesión';
+
+  @override
+  String get presessionReadyTitle => '¿Listo para enfocar?';
+
+  @override
+  String get presessionReadySubtitle =>
+      'Define tu intención y bloquea las distracciones.';
+
+  @override
+  String get presessionRequired => 'Obligatorio';
+
+  @override
+  String get presessionTaskDefault => 'Construir mi aplicación Flutter';
+
+  @override
+  String get presessionCustom => 'Personalizado';
+
+  @override
+  String get presessionMin => 'min';
+
+  @override
+  String get presessionAppsToBlock => 'Apps a bloquear';
+
+  @override
+  String presessionActiveCount(int count) {
+    return '$count activas';
+  }
+
+  @override
+  String get presessionManage => 'Gestionar';
+
+  @override
+  String presessionMoreCount(int count) {
+    return '+$count más';
+  }
+
+  @override
+  String get presessionEnforcementMode => 'Modo de Cumplimiento';
+
+  @override
+  String get modeStandard => 'Estándar';
+
+  @override
+  String get modeStandardDescription =>
+      'Sal cuando lo necesites sin penalización. Registra las salidas intencionales.';
+
+  @override
+  String get modeStrict => 'Estricto';
+
+  @override
+  String get modeStrictDescription =>
+      'Salir cuenta como interrupción. El desbloqueo de emergencia requiere esperar 60 segundos.';
+
+  @override
+  String get modeRecommended => 'Recomendado';
+
+  @override
+  String presessionStartWithDuration(int min) {
+    return 'Iniciar Enfoque ($min min)';
+  }
+
+  @override
+  String get presessionFaceDownTip =>
+      'Poner tu teléfono boca abajo atenuará automáticamente la pantalla.';
+
+  @override
+  String get focusModeStrict => 'ENFOQUE ESTRICTO';
+
+  @override
+  String get focusModeStandard => 'ENFOQUE ESTÁNDAR';
+
+  @override
+  String get focusBreakTime => 'TIEMPO DE DESCANSO';
+
+  @override
+  String get focusRestrictedMode => 'MODO RESTRINGIDO';
+
+  @override
+  String get focusPausedLabel => 'PAUSADO';
+
+  @override
+  String get focusNoAppsBlocked => 'Sin apps bloqueadas';
+
+  @override
+  String focusLockedDownCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Teléfono bloqueado • $count apps bloqueadas',
+      one: 'Teléfono bloqueado • $count app bloqueada',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get focusZenPill => 'Deja el teléfono y sumérgete.';
+
+  @override
+  String get focusEndSessionEarly => 'Terminar sesión antes de tiempo';
+
+  @override
+  String get focusSheetTitle => '¿Romper sesión de enfoque?';
+
+  @override
+  String get focusSheetBody => 'Tu racha actual se reiniciará por hoy.';
+
+  @override
+  String get focusUnlockPhone => 'Desbloquear Teléfono';
+
+  @override
+  String get blockedDefaultTask => 'Tu sesión de enfoque';
+
+  @override
+  String get blockedFallbackApp => 'Esta app';
+
+  @override
+  String get blockedInterventionGate => 'Puerta de Intervención';
+
+  @override
+  String get blockedStayFocused => 'Mantente enfocado.';
+
+  @override
+  String get blockedBreathe =>
+      'Respira. Tu yo del futuro te agradecerá terminar esta sesión.';
+
+  @override
+  String get blockedYouChose => 'Elegiste enfocarte en';
+
+  @override
+  String get blockedDeepWork => 'Trabajo Profundo';
+
+  @override
+  String blockedTimeRemaining(String time) {
+    return '$time restantes';
+  }
+
+  @override
+  String blockedSessionTarget(int minutes) {
+    return 'Objetivo de sesión: ${minutes}m';
+  }
+
+  @override
+  String blockedAppIsLocked(String app) {
+    return '$app está bloqueada';
+  }
+
+  @override
+  String get blockedFocusShield => 'Dentro de tu escudo de enfoque';
+
+  @override
+  String get blockedStrictActive => 'El Modo Estricto está activo';
+
+  @override
+  String get blockedStrictWarning =>
+      'Salir de esta sesión antes de tiempo se registrará permanentemente como una interrupción en tu racha semanal.';
+
+  @override
+  String get blockedReturnToFocus => 'Volver al enfoque';
+
+  @override
+  String get blockedEndSessionAnyway => 'Terminar sesión de todos modos';
+
+  @override
+  String get blockedUrges =>
+      'Los impulsos alcanzan su punto máximo y desaparecen en 3 minutos';
+
+  @override
+  String get blockedBreakStreak => '¿Romper tu racha?';
+
+  @override
+  String get blockedBreath =>
+      'Estás a solo minutos de asegurar la mejor sesión de enfoque de hoy. Respira lenta y profundamente tres veces en su lugar.';
+
+  @override
+  String get blockedKeepGoing => 'Voy a continuar';
+
+  @override
+  String get blockedQuitSession => 'Abandonar sesión';
 }

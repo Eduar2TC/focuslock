@@ -149,11 +149,11 @@
   "@presessionAppbarTitle": {
     "description": "Pre-session page title"
   },
-  "presessionTaskLabel": "What are you going to work on?",
+  "presessionTaskLabel": "What are you working on?",
   "@presessionTaskLabel": {
     "description": "Task input label"
   },
-  "presessionTaskHint": "Build my Flutter app",
+  "presessionTaskHint": "e.g., Deep writing, Coding Sprint...",
   "@presessionTaskHint": {
     "description": "Task input hint"
   },
@@ -201,11 +201,11 @@
   "@focusSkipBreak": {
     "description": "Button to skip break"
   },
-  "focusResume": "Resume",
+  "focusResume": "Resume Focus",
   "@focusResume": {
     "description": "Button to resume session"
   },
-  "focusPause": "Pause",
+  "focusPause": "Pause Session",
   "@focusPause": {
     "description": "Button to pause session"
   },
@@ -516,5 +516,304 @@
   "achievementFocus10hDescription": "Accumulate 10 hours of focus time",
   "@achievementFocus10hDescription": {
     "description": "10 hours focus achievement description"
+  },
+
+  "navHome": "Home",
+  "@navHome": {
+    "description": "Home tab label"
+  },
+
+  "commonClear": "Clear",
+  "@commonClear": {
+    "description": "Clear text field action"
+  },
+
+  "homeCalmMind": "Calm Mind",
+  "@homeCalmMind": {
+    "description": "Header chip label"
+  },
+  "homeScheduleReady": "Your scheduled deep session is ready.",
+  "@homeScheduleReady": {
+    "description": "Subtitle under the greeting"
+  },
+  "homeSessionsCompleted": "{count, plural, =1{{count} session completed} other{{count} sessions completed}}",
+  "@homeSessionsCompleted": {
+    "description": "Number of completed sessions today",
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "homeGoalPercent": "{percent}% goal",
+  "@homeGoalPercent": {
+    "description": "Percent of daily goal reached",
+    "placeholders": {
+      "percent": {"type": "int"}
+    }
+  },
+  "homeStreakLabel": "{count, plural, =1{{count} day streak} other{{count} days streak}}",
+  "@homeStreakLabel": {
+    "description": "Current streak in days",
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "homeBestStreak": "Best: {count} days",
+  "@homeBestStreak": {
+    "description": "Best streak value",
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "homeStreakActive": "Active",
+  "@homeStreakActive": {
+    "description": "Streak badge"
+  },
+  "homeRecentActivity": "Recent Activity",
+  "@homeRecentActivity": {
+    "description": "Recent sessions section title"
+  },
+  "homeViewAll": "View all",
+  "@homeViewAll": {
+    "description": "Link to statistics"
+  },
+  "homeRecentEmpty": "No sessions yet. Start your first focus session.",
+  "@homeRecentEmpty": {
+    "description": "Empty recent activity message"
+  },
+  "homeRecentCompleted": "Completed",
+  "@homeRecentCompleted": {
+    "description": "Completed session status"
+  },
+  "homeRecentCancelled": "Cancelled",
+  "@homeRecentCancelled": {
+    "description": "Cancelled session status"
+  },
+
+  "presessionSetupChip": "Session Setup",
+  "@presessionSetupChip": {
+    "description": "Pre-session header chip"
+  },
+  "presessionReadyTitle": "Ready to focus?",
+  "@presessionReadyTitle": {
+    "description": "Pre-session header title"
+  },
+  "presessionReadySubtitle": "Set your intention and lock away distractions.",
+  "@presessionReadySubtitle": {
+    "description": "Pre-session header subtitle"
+  },
+  "presessionRequired": "Required",
+  "@presessionRequired": {
+    "description": "Task input required badge"
+  },
+  "presessionTaskDefault": "Build my Flutter application",
+  "@presessionTaskDefault": {
+    "description": "Default task text prefilled in the input"
+  },
+  "presessionCustom": "Custom",
+  "@presessionCustom": {
+    "description": "Custom duration action"
+  },
+  "presessionMin": "min",
+  "@presessionMin": {
+    "description": "Minutes unit label"
+  },
+  "presessionAppsToBlock": "Apps to block",
+  "@presessionAppsToBlock": {
+    "description": "Blocked apps section title"
+  },
+  "presessionActiveCount": "{count} active",
+  "@presessionActiveCount": {
+    "description": "Number of active blocked apps",
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "presessionManage": "Manage",
+  "@presessionManage": {
+    "description": "Manage blocked apps action"
+  },
+  "presessionMoreCount": "+{count} more",
+  "@presessionMoreCount": {
+    "description": "Remaining blocked apps count",
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "presessionEnforcementMode": "Enforcement Mode",
+  "@presessionEnforcementMode": {
+    "description": "Enforcement mode section title"
+  },
+  "modeStandard": "Standard",
+  "@modeStandard": {
+    "description": "Standard enforcement mode name"
+  },
+  "modeStandardDescription": "Leave when you need to without penalty. Keeps track of intentional exits.",
+  "@modeStandardDescription": {
+    "description": "Standard enforcement mode description"
+  },
+  "modeStrict": "Strict",
+  "@modeStrict": {
+    "description": "Strict enforcement mode name"
+  },
+  "modeStrictDescription": "Leaving counts as an interruption. Emergency unlock requires a 60-second cooldown wait.",
+  "@modeStrictDescription": {
+    "description": "Strict enforcement mode description"
+  },
+  "modeRecommended": "Recommended",
+  "@modeRecommended": {
+    "description": "Recommended mode badge"
+  },
+  "presessionStartWithDuration": "Start Focus ({min} min)",
+  "@presessionStartWithDuration": {
+    "description": "Start button including the chosen duration",
+    "placeholders": {
+      "min": {"type": "int"}
+    }
+  },
+  "presessionFaceDownTip": "Putting your phone face-down will automatically dim the display.",
+  "@presessionFaceDownTip": {
+    "description": "Tip about face-down display dimming"
+  },
+
+  "focusModeStrict": "STRICT FOCUS",
+  "@focusModeStrict": {
+    "description": "Strict mode chip label"
+  },
+  "focusModeStandard": "STANDARD FOCUS",
+  "@focusModeStandard": {
+    "description": "Standard mode chip label"
+  },
+  "focusBreakTime": "BREAK TIME",
+  "@focusBreakTime": {
+    "description": "Break indicator under the timer"
+  },
+  "focusRestrictedMode": "RESTRICTED MODE",
+  "@focusRestrictedMode": {
+    "description": "Focus indicator under the timer"
+  },
+  "focusPausedLabel": "PAUSED",
+  "@focusPausedLabel": {
+    "description": "Paused state indicator"
+  },
+  "focusNoAppsBlocked": "No apps blocked",
+  "@focusNoAppsBlocked": {
+    "description": "Message when no apps are blocked"
+  },
+  "focusLockedDownCount": "{count, plural, =1{Phone is locked down • {count} app blocked} other{Phone is locked down • {count} apps blocked}}",
+  "@focusLockedDownCount": {
+    "description": "Message when one or more apps are blocked",
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "focusZenPill": "Put your phone down and dive in.",
+  "@focusZenPill": {
+    "description": "Zen mantra shown during focus"
+  },
+  "focusEndSessionEarly": "End session early",
+  "@focusEndSessionEarly": {
+    "description": "Action to end the session early"
+  },
+  "focusSheetTitle": "Break Focus Session?",
+  "@focusSheetTitle": {
+    "description": "End session confirmation sheet title"
+  },
+  "focusSheetBody": "Your current streak will reset for today.",
+  "@focusSheetBody": {
+    "description": "End session confirmation sheet body"
+  },
+  "focusUnlockPhone": "Unlock Phone",
+  "@focusUnlockPhone": {
+    "description": "Button to cancel the session and unlock the phone"
+  },
+
+  "blockedDefaultTask": "Your focus session",
+  "@blockedDefaultTask": {
+    "description": "Fallback task label when no intention is set"
+  },
+  "blockedFallbackApp": "This app",
+  "@blockedFallbackApp": {
+    "description": "Fallback blocked app name"
+  },
+  "blockedInterventionGate": "Intervention Gate",
+  "@blockedInterventionGate": {
+    "description": "Blocked app page badge"
+  },
+  "blockedStayFocused": "Stay focused.",
+  "@blockedStayFocused": {
+    "description": "Blocked app page title"
+  },
+  "blockedBreathe": "Breathe. Your future self will thank you for finishing this session.",
+  "@blockedBreathe": {
+    "description": "Blocked app page subtitle"
+  },
+  "blockedYouChose": "You chose to focus on",
+  "@blockedYouChose": {
+    "description": "Intention card label"
+  },
+  "blockedDeepWork": "Deep Work",
+  "@blockedDeepWork": {
+    "description": "Intention card badge"
+  },
+  "blockedTimeRemaining": "{time} remaining",
+  "@blockedTimeRemaining": {
+    "description": "Remaining focus time",
+    "placeholders": {
+      "time": {"type": "String"}
+    }
+  },
+  "blockedSessionTarget": "Session target: {minutes}m",
+  "@blockedSessionTarget": {
+    "description": "Planned session duration",
+    "placeholders": {
+      "minutes": {"type": "int"}
+    }
+  },
+  "blockedAppIsLocked": "{app} is locked",
+  "@blockedAppIsLocked": {
+    "description": "Blocked app card title",
+    "placeholders": {
+      "app": {"type": "String"}
+    }
+  },
+  "blockedFocusShield": "Scheduled inside your focus shield",
+  "@blockedFocusShield": {
+    "description": "Blocked app card subtitle"
+  },
+  "blockedStrictActive": "Strict Mode is active",
+  "@blockedStrictActive": {
+    "description": "Strict mode warning title"
+  },
+  "blockedStrictWarning": "Leaving this session early will be permanently logged as an interruption on your weekly streak.",
+  "@blockedStrictWarning": {
+    "description": "Strict mode warning body"
+  },
+  "blockedReturnToFocus": "Return to focus",
+  "@blockedReturnToFocus": {
+    "description": "Primary action on blocked app page"
+  },
+  "blockedEndSessionAnyway": "End session anyway",
+  "@blockedEndSessionAnyway": {
+    "description": "Secondary action on blocked app page"
+  },
+  "blockedUrges": "Urges peak and fade within 3 minutes",
+  "@blockedUrges": {
+    "description": "Motivational hint under the actions"
+  },
+  "blockedBreakStreak": "Break your streak?",
+  "@blockedBreakStreak": {
+    "description": "Abandon session sheet title"
+  },
+  "blockedBreath": "You are only minutes away from locking in today's best focus session. Take three slow breaths instead.",
+  "@blockedBreath": {
+    "description": "Abandon session sheet body"
+  },
+  "blockedKeepGoing": "I will keep going",
+  "@blockedKeepGoing": {
+    "description": "Abandon session sheet primary action"
+  },
+  "blockedQuitSession": "Quit session",
+  "@blockedQuitSession": {
+    "description": "Abandon session sheet secondary action"
   }
 }

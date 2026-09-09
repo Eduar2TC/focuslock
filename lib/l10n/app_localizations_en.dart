@@ -123,10 +123,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get presessionAppbarTitle => 'New Session';
 
   @override
-  String get presessionTaskLabel => 'What are you going to work on?';
+  String get presessionTaskLabel => 'What are you working on?';
 
   @override
-  String get presessionTaskHint => 'Build my Flutter app';
+  String get presessionTaskHint => 'e.g., Deep writing, Coding Sprint...';
 
   @override
   String get presessionDurationLabel => 'Duration';
@@ -161,10 +161,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get focusSkipBreak => 'Skip break';
 
   @override
-  String get focusResume => 'Resume';
+  String get focusResume => 'Resume Focus';
 
   @override
-  String get focusPause => 'Pause';
+  String get focusPause => 'Pause Session';
 
   @override
   String get focusCancelDialogTitle => 'Cancel Session?';
@@ -394,4 +394,247 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get achievementFocus10hDescription =>
       'Accumulate 10 hours of focus time';
+
+  @override
+  String get navHome => 'Home';
+
+  @override
+  String get commonClear => 'Clear';
+
+  @override
+  String get homeCalmMind => 'Calm Mind';
+
+  @override
+  String get homeScheduleReady => 'Your scheduled deep session is ready.';
+
+  @override
+  String homeSessionsCompleted(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count sessions completed',
+      one: '$count session completed',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeGoalPercent(int percent) {
+    return '$percent% goal';
+  }
+
+  @override
+  String homeStreakLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days streak',
+      one: '$count day streak',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeBestStreak(int count) {
+    return 'Best: $count days';
+  }
+
+  @override
+  String get homeStreakActive => 'Active';
+
+  @override
+  String get homeRecentActivity => 'Recent Activity';
+
+  @override
+  String get homeViewAll => 'View all';
+
+  @override
+  String get homeRecentEmpty =>
+      'No sessions yet. Start your first focus session.';
+
+  @override
+  String get homeRecentCompleted => 'Completed';
+
+  @override
+  String get homeRecentCancelled => 'Cancelled';
+
+  @override
+  String get presessionSetupChip => 'Session Setup';
+
+  @override
+  String get presessionReadyTitle => 'Ready to focus?';
+
+  @override
+  String get presessionReadySubtitle =>
+      'Set your intention and lock away distractions.';
+
+  @override
+  String get presessionRequired => 'Required';
+
+  @override
+  String get presessionTaskDefault => 'Build my Flutter application';
+
+  @override
+  String get presessionCustom => 'Custom';
+
+  @override
+  String get presessionMin => 'min';
+
+  @override
+  String get presessionAppsToBlock => 'Apps to block';
+
+  @override
+  String presessionActiveCount(int count) {
+    return '$count active';
+  }
+
+  @override
+  String get presessionManage => 'Manage';
+
+  @override
+  String presessionMoreCount(int count) {
+    return '+$count more';
+  }
+
+  @override
+  String get presessionEnforcementMode => 'Enforcement Mode';
+
+  @override
+  String get modeStandard => 'Standard';
+
+  @override
+  String get modeStandardDescription =>
+      'Leave when you need to without penalty. Keeps track of intentional exits.';
+
+  @override
+  String get modeStrict => 'Strict';
+
+  @override
+  String get modeStrictDescription =>
+      'Leaving counts as an interruption. Emergency unlock requires a 60-second cooldown wait.';
+
+  @override
+  String get modeRecommended => 'Recommended';
+
+  @override
+  String presessionStartWithDuration(int min) {
+    return 'Start Focus ($min min)';
+  }
+
+  @override
+  String get presessionFaceDownTip =>
+      'Putting your phone face-down will automatically dim the display.';
+
+  @override
+  String get focusModeStrict => 'STRICT FOCUS';
+
+  @override
+  String get focusModeStandard => 'STANDARD FOCUS';
+
+  @override
+  String get focusBreakTime => 'BREAK TIME';
+
+  @override
+  String get focusRestrictedMode => 'RESTRICTED MODE';
+
+  @override
+  String get focusPausedLabel => 'PAUSED';
+
+  @override
+  String get focusNoAppsBlocked => 'No apps blocked';
+
+  @override
+  String focusLockedDownCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Phone is locked down • $count apps blocked',
+      one: 'Phone is locked down • $count app blocked',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get focusZenPill => 'Put your phone down and dive in.';
+
+  @override
+  String get focusEndSessionEarly => 'End session early';
+
+  @override
+  String get focusSheetTitle => 'Break Focus Session?';
+
+  @override
+  String get focusSheetBody => 'Your current streak will reset for today.';
+
+  @override
+  String get focusUnlockPhone => 'Unlock Phone';
+
+  @override
+  String get blockedDefaultTask => 'Your focus session';
+
+  @override
+  String get blockedFallbackApp => 'This app';
+
+  @override
+  String get blockedInterventionGate => 'Intervention Gate';
+
+  @override
+  String get blockedStayFocused => 'Stay focused.';
+
+  @override
+  String get blockedBreathe =>
+      'Breathe. Your future self will thank you for finishing this session.';
+
+  @override
+  String get blockedYouChose => 'You chose to focus on';
+
+  @override
+  String get blockedDeepWork => 'Deep Work';
+
+  @override
+  String blockedTimeRemaining(String time) {
+    return '$time remaining';
+  }
+
+  @override
+  String blockedSessionTarget(int minutes) {
+    return 'Session target: ${minutes}m';
+  }
+
+  @override
+  String blockedAppIsLocked(String app) {
+    return '$app is locked';
+  }
+
+  @override
+  String get blockedFocusShield => 'Scheduled inside your focus shield';
+
+  @override
+  String get blockedStrictActive => 'Strict Mode is active';
+
+  @override
+  String get blockedStrictWarning =>
+      'Leaving this session early will be permanently logged as an interruption on your weekly streak.';
+
+  @override
+  String get blockedReturnToFocus => 'Return to focus';
+
+  @override
+  String get blockedEndSessionAnyway => 'End session anyway';
+
+  @override
+  String get blockedUrges => 'Urges peak and fade within 3 minutes';
+
+  @override
+  String get blockedBreakStreak => 'Break your streak?';
+
+  @override
+  String get blockedBreath =>
+      'You are only minutes away from locking in today\'s best focus session. Take three slow breaths instead.';
+
+  @override
+  String get blockedKeepGoing => 'I will keep going';
+
+  @override
+  String get blockedQuitSession => 'Quit session';
 }

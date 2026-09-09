@@ -28,6 +28,7 @@ class HomePage extends ConsumerWidget {
         const SizedBox(height: 20),
         _buildFocusSummaryCard(
           context,
+          l10n,
           dashboardAsync.when(
             data: (data) => data,
             loading: () => const HomeDashboardData(
@@ -105,9 +106,9 @@ class HomePage extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(width: 6),
-                  const Text(
-                    'Calm Mind',
-                    style: TextStyle(
+                  Text(
+                    l10n.homeCalmMind,
+                    style: const TextStyle(
                       fontFamily: AppTheme.fontFamily,
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
@@ -127,7 +128,7 @@ class HomePage extends ConsumerWidget {
         ),
         const SizedBox(height: 4),
         Text(
-          'Your scheduled deep session is ready.',
+          l10n.homeScheduleReady,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 14),
         ),
       ],
@@ -136,6 +137,7 @@ class HomePage extends ConsumerWidget {
 
   Widget _buildFocusSummaryCard(
     BuildContext context,
+    AppLocalizations l10n,
     HomeDashboardData data,
   ) {
     final goal = AppConstants.dailyFocusGoalMinutes.minutes;
@@ -169,12 +171,12 @@ class HomePage extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Row(
+                Row(
                   children: [
                     Expanded(
                       child: Text(
-                        "Today's Focus",
-                        style: TextStyle(
+                        l10n.homeTitle,
+                        style: const TextStyle(
                           fontFamily: AppTheme.fontFamily,
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
@@ -183,7 +185,7 @@ class HomePage extends ConsumerWidget {
                         ),
                       ),
                     ),
-                    Icon(
+                    const Icon(
                       Icons.graphic_eq,
                       size: 20,
                       color: AppTheme.primaryColor,
@@ -248,8 +250,7 @@ class HomePage extends ConsumerWidget {
                           ),
                           const SizedBox(width: 6),
                           Text(
-                            '${data.todayCompletedCount} '
-                            '${data.todayCompletedCount == 1 ? 'session' : 'sessions'} completed',
+                            l10n.homeSessionsCompleted(data.todayCompletedCount),
                             style: const TextStyle(
                               fontFamily: AppTheme.fontFamily,
                               fontSize: 12,
@@ -262,7 +263,7 @@ class HomePage extends ConsumerWidget {
                     ),
                     const Spacer(),
                     Text(
-                      '$percentLabel% goal',
+                      l10n.homeGoalPercent(percentLabel),
                       style: const TextStyle(
                         fontFamily: AppTheme.fontFamily,
                         fontSize: 13,
@@ -362,11 +363,11 @@ class HomePage extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '$streak ${streak == 1 ? 'day' : 'days'} streak',
+                      l10n.homeStreakLabel(streak),
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     Text(
-                      'Best: $bestStreak days',
+                      l10n.homeBestStreak(bestStreak),
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ],
@@ -379,9 +380,9 @@ class HomePage extends ConsumerWidget {
                   color: AppTheme.surfaceContainerHigh,
                   borderRadius: BorderRadius.circular(9999),
                 ),
-                child: const Text(
-                  'Active',
-                  style: TextStyle(
+                child: Text(
+                  l10n.homeStreakActive,
+                  style: const TextStyle(
                     fontFamily: AppTheme.fontFamily,
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
@@ -399,7 +400,7 @@ class HomePage extends ConsumerWidget {
                 final isToday = i == 6;
                 final active = week[i];
                 return _WeekDayDot(
-                  label: DateFormat('E', 'en_US')
+                  label: DateFormat('E', l10n.localeName)
                       .format(DateTime.now().subtract(Duration(days: 6 - i)))
                       .substring(0, 1),
                   active: active,
@@ -423,7 +424,7 @@ class HomePage extends ConsumerWidget {
         Row(
           children: [
             Text(
-              'Recent Activity',
+              l10n.homeRecentActivity,
               style: Theme.of(context)
                   .textTheme
                   .headlineSmall
@@ -432,12 +433,12 @@ class HomePage extends ConsumerWidget {
             const Spacer(),
             TextButton(
               onPressed: () => context.go('/statistics'),
-              child: const Row(
+              child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('View all'),
-                  SizedBox(width: 2),
-                  Icon(Icons.chevron_right, size: 16),
+                  Text(l10n.homeViewAll),
+                  const SizedBox(width: 2),
+                  const Icon(Icons.chevron_right, size: 16),
                 ],
               ),
             ),
@@ -451,14 +452,15 @@ class HomePage extends ConsumerWidget {
               color: AppTheme.cardColor,
               borderRadius: BorderRadius.circular(16),
             ),
-            child: const Row(
+            child: Row(
               children: [
-                Icon(Icons.history, size: 20, color: AppTheme.onSurfaceVariant),
-                SizedBox(width: 12),
+                const Icon(
+                    Icons.history, size: 20, color: AppTheme.onSurfaceVariant),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'No sessions yet. Start your first focus session.',
-                    style: TextStyle(
+                    l10n.homeRecentEmpty,
+                    style: const TextStyle(
                       fontFamily: AppTheme.fontFamily,
                       fontSize: 13,
                       color: AppTheme.onSurfaceVariant,
@@ -550,8 +552,10 @@ class _RecentActivityItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final completed = session.isCompleted;
+    final l10n = AppLocalizations.of(context)!;
     final icon = completed ? Icons.code : Icons.menu_book;
-    final statusLabel = completed ? 'Completed' : 'Cancelled';
+    final statusLabel =
+        completed ? l10n.homeRecentCompleted : l10n.homeRecentCancelled;
     final statusColor =
         completed ? AppTheme.primaryContainer : AppTheme.errorColor;
 
