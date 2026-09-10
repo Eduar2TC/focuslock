@@ -87,6 +87,8 @@ class FocusSessionController extends StateNotifier<FocusSessionState?> {
 
   AppLocalizations? get _l10n => activeAppLocalizations.value;
 
+  bool get _isStrictMode => _settings.enforcementLevel == 'strict';
+
   String _notificationTitle() {
     return _l10n?.notificationSessionActiveTitle ?? 'Focus Session Active';
   }
@@ -138,8 +140,9 @@ class FocusSessionController extends StateNotifier<FocusSessionState?> {
 
     try {
       final blockedApps = _appRepository.getActiveBlockedPackages();
+      // Strict sessions never allow bypassing the block at the OS level.
       await _nativeService.startBlocking(blockedApps,
-          allowEmergencyExit: _settings.allowEmergencyExit);
+          allowEmergencyExit: !_isStrictMode && _settings.allowEmergencyExit);
 
       await _nativeService.startForegroundService(
         _notificationTitle(),
@@ -292,7 +295,7 @@ class FocusSessionController extends StateNotifier<FocusSessionState?> {
     try {
       await _nativeService.startBlocking(
         _appRepository.getActiveBlockedPackages(),
-        allowEmergencyExit: _settings.allowEmergencyExit,
+        allowEmergencyExit: !_isStrictMode && _settings.allowEmergencyExit,
       );
 
       final engineState = _engine.currentState;

@@ -704,6 +704,60 @@ abstract class AppLocalizations {
   /// **'Grant Accessibility Access'**
   String get appsGrantAccessibilityAccess;
 
+  /// Permissions gate page title
+  ///
+  /// In en, this message translates to:
+  /// **'Permissions Required'**
+  String get permissionsPageTitle;
+
+  /// Permissions gate page subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'A strict session blocks other apps. FocusLock needs these permissions to work.'**
+  String get permissionsPageSubtitle;
+
+  /// Usage access permission label
+  ///
+  /// In en, this message translates to:
+  /// **'Usage Access'**
+  String get permissionsUsageStats;
+
+  /// Accessibility permission label
+  ///
+  /// In en, this message translates to:
+  /// **'Accessibility Access'**
+  String get permissionsAccessibility;
+
+  /// Granted permission status
+  ///
+  /// In en, this message translates to:
+  /// **'Granted'**
+  String get permissionsGranted;
+
+  /// Missing permission status
+  ///
+  /// In en, this message translates to:
+  /// **'Missing'**
+  String get permissionsMissing;
+
+  /// All permissions granted message
+  ///
+  /// In en, this message translates to:
+  /// **'All permissions granted'**
+  String get permissionsAllGranted;
+
+  /// Continue button on the permissions gate
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get permissionsContinue;
+
+  /// Snackbar when trying to start a session with no apps to block
+  ///
+  /// In en, this message translates to:
+  /// **'Add at least one app to block before starting.'**
+  String get presessionErrorRequiresApps;
+
   /// Empty apps title
   ///
   /// In en, this message translates to:

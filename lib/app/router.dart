@@ -11,6 +11,7 @@ import '../features/focus/presentation/pages/completion_page.dart';
 import '../features/settings/presentation/pages/settings_page.dart';
 import '../features/statistics/presentation/pages/statistics_page.dart';
 import '../features/apps/presentation/pages/apps_page.dart';
+import '../features/apps/presentation/pages/permissions_page.dart';
 import 'app_shell.dart';
 import 'dependencies.dart';
 
@@ -149,6 +150,10 @@ final routerProvider = Provider<GoRouter>((ref) {
             ],
           ),
         ],
+      ),
+      GoRoute(
+        path: '/permissions',
+        builder: (context, state) => const PermissionsPage(),
       ),
       GoRoute(
         path: '/focus',

@@ -343,7 +343,11 @@ class _FocusPageState extends ConsumerState<FocusPage>
   Widget _buildControls(AppLocalizations l10n, bool isPaused) {
     final controller = ref.read(focusSessionControllerProvider.notifier);
     final settings = ref.read(settingsRepositoryProvider);
-    final allowCancel = settings.allowCancelSession;
+    // Strict sessions never allow cancelling, regardless of the stored
+    // settings value (which the Settings screen may have changed).
+    final allowCancel = settings.enforcementLevel == 'strict'
+        ? false
+        : settings.allowCancelSession;
 
     return Column(
       children: [

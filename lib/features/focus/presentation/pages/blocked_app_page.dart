@@ -60,7 +60,9 @@ class _BlockedAppPageState extends ConsumerState<BlockedAppPage> {
     final planned = state?.session.plannedDuration ?? Duration.zero;
     final isStrict =
         ref.read(settingsRepositoryProvider).enforcementLevel == 'strict';
-    final allowCancel = ref.read(settingsRepositoryProvider).allowCancelSession;
+    final allowCancel = isStrict
+        ? false
+        : ref.read(settingsRepositoryProvider).allowCancelSession;
 
     final appName = _blockedAppName(ref, l10n, attemptedPackage);
 

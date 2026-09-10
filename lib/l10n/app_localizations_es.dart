@@ -339,6 +339,35 @@ class AppLocalizationsEs extends AppLocalizations {
   String get appsGrantAccessibilityAccess => 'Conceder Acceso de Accesibilidad';
 
   @override
+  String get permissionsPageTitle => 'Permisos Requeridos';
+
+  @override
+  String get permissionsPageSubtitle =>
+      'Una sesión estricta bloquea otras apps. FocusLock necesita estos permisos para funcionar.';
+
+  @override
+  String get permissionsUsageStats => 'Acceso de Uso';
+
+  @override
+  String get permissionsAccessibility => 'Acceso de Accesibilidad';
+
+  @override
+  String get permissionsGranted => 'Concedido';
+
+  @override
+  String get permissionsMissing => 'Faltante';
+
+  @override
+  String get permissionsAllGranted => 'Todos los permisos concedidos';
+
+  @override
+  String get permissionsContinue => 'Continuar';
+
+  @override
+  String get presessionErrorRequiresApps =>
+      'Añade al menos una app que bloquear antes de comenzar.';
+
+  @override
   String get appsEmptyTitle => 'No se encontraron apps';
 
   @override

@@ -436,6 +436,42 @@
   "@appsGrantAccessibilityAccess": {
     "description": "Grant accessibility access button"
   },
+  "permissionsPageTitle": "Permissions Required",
+  "@permissionsPageTitle": {
+    "description": "Permissions gate page title"
+  },
+  "permissionsPageSubtitle": "A strict session blocks other apps. FocusLock needs these permissions to work.",
+  "@permissionsPageSubtitle": {
+    "description": "Permissions gate page subtitle"
+  },
+  "permissionsUsageStats": "Usage Access",
+  "@permissionsUsageStats": {
+    "description": "Usage access permission label"
+  },
+  "permissionsAccessibility": "Accessibility Access",
+  "@permissionsAccessibility": {
+    "description": "Accessibility permission label"
+  },
+  "permissionsGranted": "Granted",
+  "@permissionsGranted": {
+    "description": "Granted permission status"
+  },
+  "permissionsMissing": "Missing",
+  "@permissionsMissing": {
+    "description": "Missing permission status"
+  },
+  "permissionsAllGranted": "All permissions granted",
+  "@permissionsAllGranted": {
+    "description": "All permissions granted message"
+  },
+  "permissionsContinue": "Continue",
+  "@permissionsContinue": {
+    "description": "Continue button on the permissions gate"
+  },
+  "presessionErrorRequiresApps": "Add at least one app to block before starting.",
+  "@presessionErrorRequiresApps": {
+    "description": "Snackbar when trying to start a session with no apps to block"
+  },
   "appsEmptyTitle": "No apps found",
   "@appsEmptyTitle": {
     "description": "Empty apps title"
