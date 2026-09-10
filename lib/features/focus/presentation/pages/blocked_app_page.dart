@@ -22,17 +22,26 @@ class _BlockedAppPageState extends ConsumerState<BlockedAppPage> {
   }
 
   /// On a cold start the controller is empty, so restore the persisted
-  /// active session to render the real task and remaining time.
+  /// active session (re-hydrating the countdown) to render the real task and
+  /// remaining time, and surface any app that triggered the blocking.
   Future<void> _restoreSession() async {
     final controller = ref.read(focusSessionControllerProvider);
     if (controller != null && controller.session.isActive) return;
 
     try {
-      final active = await ref.read(focusSessionRepositoryProvider).getActiveSession();
-      if (active != null && active.isActive && mounted) {
-        ref
-            .read(focusSessionControllerProvider.notifier)
-            .restoreActiveSession(active);
+      final active =
+          await ref.read(focusSessionRepositoryProvider).getActiveSession();
+      if (active == null || !active.isActive || !mounted) return;
+
+      await ref
+          .read(focusSessionControllerProvider.notifier)
+          .restoreActiveSession(active);
+
+      final attempt =
+          await ref.read(nativeFocusServiceProvider).getLastBlockedAppAttempt();
+      if (attempt != null && mounted) {
+        final packageName = attempt['packageName'] ?? attempt.values.first;
+        ref.read(blockedAppAttemptProvider.notifier).state = packageName;
       }
     } catch (_) {
       // Non-fatal: fall back to the default task/empty state.
@@ -77,10 +86,14 @@ class _BlockedAppPageState extends ConsumerState<BlockedAppPage> {
               Text(
                 l10n.blockedBreathe,
                 textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 14),
+                style: Theme.of(context)
+                    .textTheme
+                    .bodySmall
+                    ?.copyWith(fontSize: 14),
               ),
               const SizedBox(height: 24),
-              _buildIntentionCard(context, l10n, task, remaining, progress, planned),
+              _buildIntentionCard(
+                  context, l10n, task, remaining, progress, planned),
               const SizedBox(height: 12),
               _buildBlockedAppCard(context, l10n, appName),
               const SizedBox(height: 12),
@@ -94,11 +107,14 @@ class _BlockedAppPageState extends ConsumerState<BlockedAppPage> {
     );
   }
 
-  String _blockedAppName(WidgetRef ref, AppLocalizations l10n, String? packageName) {
+  String _blockedAppName(
+      WidgetRef ref, AppLocalizations l10n, String? packageName) {
     if (packageName == null) return l10n.blockedFallbackApp;
     final repository = ref.read(appRepositoryProvider);
-    final match =
-        repository.getBlockedApps().where((a) => a.packageName == packageName).toList();
+    final match = repository
+        .getBlockedApps()
+        .where((a) => a.packageName == packageName)
+        .toList();
     if (match.isNotEmpty && match.first.appName.isNotEmpty) {
       return match.first.appName;
     }
@@ -352,7 +368,10 @@ class _BlockedAppPageState extends ConsumerState<BlockedAppPage> {
                 const SizedBox(height: 4),
                 Text(
                   l10n.blockedStrictWarning,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(height: 1.4),
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodySmall
+                      ?.copyWith(height: 1.4),
                 ),
               ],
             ),
@@ -466,8 +485,10 @@ class _BlockedAppPageState extends ConsumerState<BlockedAppPage> {
               Text(
                 l10n.blockedBreath,
                 textAlign: TextAlign.center,
-                style:
-                    Theme.of(sheetContext).textTheme.bodySmall?.copyWith(fontSize: 13),
+                style: Theme.of(sheetContext)
+                    .textTheme
+                    .bodySmall
+                    ?.copyWith(fontSize: 13),
               ),
               const SizedBox(height: 20),
               SizedBox(
@@ -515,8 +536,7 @@ class _Emblem extends StatefulWidget {
   State<_Emblem> createState() => _EmblemState();
 }
 
-class _EmblemState extends State<_Emblem>
-    with SingleTickerProviderStateMixin {
+class _EmblemState extends State<_Emblem> with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
 
   @override

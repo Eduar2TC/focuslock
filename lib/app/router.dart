@@ -15,7 +15,7 @@ import 'app_shell.dart';
 import 'dependencies.dart';
 
 /// Where the app should land when it is launched from a cold start.
-enum StartupTarget { onboarding, home, blockedApp }
+enum StartupTarget { onboarding, home, focus, blockedApp }
 
 /// Resolves the cold-start target while honouring an active strict-mode
 /// session: if FocusLock was force-closed during a strict session the user
@@ -51,23 +51,22 @@ class StartupRouteNotifier extends ChangeNotifier {
 
     var strict = false;
     try {
-      strict = _ref.read(settingsRepositoryProvider).enforcementLevel == 'strict';
+      strict =
+          _ref.read(settingsRepositoryProvider).enforcementLevel == 'strict';
     } catch (_) {
       strict = false;
     }
 
     FocusSession? activeSession;
-    if (strict) {
-      try {
-        final repository = _ref.read(focusSessionRepositoryProvider);
-        activeSession = await repository.getActiveSession();
-      } catch (_) {
-        activeSession = null;
-      }
+    try {
+      final repository = _ref.read(focusSessionRepositoryProvider);
+      activeSession = await repository.getActiveSession();
+    } catch (_) {
+      activeSession = null;
     }
 
     if (activeSession != null && activeSession.isActive) {
-      _set(StartupTarget.blockedApp);
+      _set(strict ? StartupTarget.blockedApp : StartupTarget.focus);
     } else {
       _set(StartupTarget.home);
     }
@@ -98,6 +97,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         return switch (target) {
           StartupTarget.onboarding => '/onboarding',
           StartupTarget.home => '/home',
+          StartupTarget.focus => '/focus',
           StartupTarget.blockedApp => '/blocked-app',
         };
       }

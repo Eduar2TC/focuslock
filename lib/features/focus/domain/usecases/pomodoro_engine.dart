@@ -71,6 +71,46 @@ class PomodoroEngine {
     _stateController.add(_currentState!);
   }
 
+  /// Restores a persisted active session after the app was re-launched from a
+  /// cold start, resuming the countdown from the wall clock so time spent
+  /// while the app was dead is respected.
+  void restoreSession(FocusSession session) {
+    _stopTimer();
+    _stopBreakTimer();
+
+    _session = session.copyWith(status: SessionStatus.running);
+    _sessionStartTime = _session.startedAt;
+
+    _currentState = FocusSessionState(
+      session: _session,
+      remaining: session.plannedDuration,
+      currentCycle: session.completedCycles + 1,
+    );
+
+    _endTimestamp = _session.startedAt.add(session.plannedDuration);
+    final remaining = recoverRemaining(_endTimestamp!);
+    if (remaining == Duration.zero) {
+      _handleFocusComplete();
+    } else {
+      _currentState = _currentState!.copyWith(remaining: remaining);
+      _startTimer();
+    }
+    _stateController.add(_currentState!);
+  }
+
+  /// Records a blocked-app attempt on the engine session so it is persisted
+  /// through the same single source of truth as the rest of the session data.
+  void recordBlockedAttempt() {
+    if (_currentState == null) return;
+
+    final current = _currentState!.session;
+    _session = current.copyWith(
+      blockedAttemptCount: current.blockedAttemptCount + 1,
+    );
+    _currentState = _currentState!.copyWith(session: _session);
+    _stateController.add(_currentState!);
+  }
+
   void pause() {
     if (_currentState == null) return;
 
@@ -81,6 +121,7 @@ class PomodoroEngine {
 
     _session = _session.copyWith(status: newStatus);
     _stopTimer();
+    _stopBreakTimer();
     _pauseStartTime = DateTime.now();
 
     _currentState = _currentState!.copyWith(
@@ -106,9 +147,13 @@ class PomodoroEngine {
       _pauseStartTime = null;
     }
 
-    _endTimestamp = DateTime.now().add(_currentState!.remaining);
-
-    _startTimer();
+    if (_currentState!.isBreak) {
+      _breakEndTimestamp = DateTime.now().add(_currentState!.breakRemaining);
+      _startBreakTimer();
+    } else {
+      _endTimestamp = DateTime.now().add(_currentState!.remaining);
+      _startTimer();
+    }
 
     _currentState = _currentState!.copyWith(
       session: _session,
@@ -162,6 +207,8 @@ class PomodoroEngine {
   void startBreak(Duration breakDuration) {
     if (_currentState == null) return;
 
+    _stopTimer();
+
     _breakEndTimestamp = DateTime.now().add(breakDuration);
 
     _currentState = _currentState!.copyWith(
@@ -176,6 +223,8 @@ class PomodoroEngine {
 
   void completeBreak() {
     if (_currentState == null) return;
+
+    _stopBreakTimer();
 
     final nextCycle = _currentState!.currentCycle + 1;
 

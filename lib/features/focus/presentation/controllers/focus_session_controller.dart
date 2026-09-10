@@ -218,13 +218,7 @@ class FocusSessionController extends StateNotifier<FocusSessionState?> {
 
   void onBlockedAppAttempted(String packageName) {
     if (state == null) return;
-
-    final currentSession = state!.session;
-    final updatedSession = currentSession.copyWith(
-      blockedAttemptCount: currentSession.blockedAttemptCount + 1,
-    );
-
-    state = state!.copyWith(session: updatedSession);
+    _engine.recordBlockedAttempt();
   }
 
   int calculateScore() {
@@ -261,19 +255,35 @@ class FocusSessionController extends StateNotifier<FocusSessionState?> {
     }
   }
 
-  /// Seeds the controller from a persisted active session so the "stay
-  /// focused" gate shows the real task and remaining time after a cold start.
-  void restoreActiveSession(FocusSession session) {
-    if (state != null || !session.isActive) return;
+  /// Seeds the controller from a persisted active session after a cold start:
+  /// re-hydrates the engine countdown (so the clock keeps ticking and the
+  /// pause/resume buttons work) and re-engages the native blocking.
+  Future<void> restoreActiveSession(FocusSession session) async {
+    if (_engine.currentState != null) return;
 
-    final remaining = session.plannedDuration - session.actualDuration;
-    state = FocusSessionState(
-      session: session.copyWith(status: SessionStatus.running),
-      remaining: remaining.isNegative ? Duration.zero : remaining,
-      currentCycle: session.completedCycles >= session.cycles
-          ? session.cycles
-          : session.completedCycles + 1,
-    );
+    _sessionSaved = false;
+    _persistedRowId = int.tryParse(session.id);
+
+    _engine.setBreakDurations(_settings.shortBreak, _settings.longBreak);
+    _engine.restoreSession(session);
+
+    try {
+      await _nativeService.startBlocking(
+        _appRepository.getActiveBlockedPackages(),
+        allowEmergencyExit: _settings.allowEmergencyExit,
+      );
+
+      final engineState = _engine.currentState;
+      await _nativeService.startForegroundService(
+        _notificationTitle(),
+        _notificationRecoveringBody(
+          session.task,
+          engineState?.remaining.inMinutes ?? session.plannedDuration.inMinutes,
+        ),
+      );
+    } catch (e) {
+      // Native service calls failed - the in-app session still runs
+    }
   }
 
   void completeBreak() {
