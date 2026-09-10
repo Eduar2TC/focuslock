@@ -7,6 +7,7 @@ import 'package:focuslock/features/focus/domain/usecases/pomodoro_engine.dart';
 import 'package:focuslock/features/settings/data/repositories/settings_repository.dart';
 import 'package:focuslock/features/apps/data/repositories/app_repository.dart';
 import 'package:focuslock/core/services/native_focus_service.dart';
+import 'package:focuslock/core/services/active_run_store.dart';
 import 'package:focuslock/features/focus/data/repositories/focus_session_repository.dart';
 import 'package:focuslock/l10n/app_localizations.dart';
 import 'package:focuslock/l10n/l10n_access.dart';
@@ -17,6 +18,7 @@ class FocusSessionController extends StateNotifier<FocusSessionState?> {
   final AppRepository _appRepository;
   final NativeFocusService _nativeService;
   final FocusSessionRepository _sessionRepository;
+  final ActiveRunStore _runStore;
 
   StreamSubscription<FocusSessionState>? _stateSubscription;
 
@@ -26,12 +28,18 @@ class FocusSessionController extends StateNotifier<FocusSessionState?> {
     this._appRepository,
     this._nativeService,
     this._sessionRepository,
+    this._runStore,
   ) : super(null) {
     _stateSubscription = _engine.stateStream.listen((sessionState) {
       if (mounted) {
-        _detectCycleCompletion(state, sessionState);
-        _detectSessionCompletion(state, sessionState);
+        final previous = state;
+        _detectCycleCompletion(previous, sessionState);
+        _detectSessionCompletion(previous, sessionState);
         state = sessionState;
+        if (sessionState.session.isActive &&
+            previous?.isBreak != sessionState.isBreak) {
+          _writeRunSnapshot();
+        }
       }
     });
   }
@@ -96,6 +104,7 @@ class FocusSessionController extends StateNotifier<FocusSessionState?> {
   void prepareSession(String task, {int? durationMinutes}) {
     _sessionSaved = false;
     _persistedRowId = null;
+    _runStore.clear();
     final session = FocusSession(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       task: task,
@@ -124,6 +133,8 @@ class FocusSessionController extends StateNotifier<FocusSessionState?> {
     } catch (e) {
       // Ignore persistence errors - session still runs in memory
     }
+
+    _writeRunSnapshot();
 
     try {
       final blockedApps = _appRepository.getActiveBlockedPackages();
@@ -156,14 +167,17 @@ class FocusSessionController extends StateNotifier<FocusSessionState?> {
 
   void pause() {
     _engine.pause();
+    _writeRunSnapshot();
   }
 
   void resume() {
     _engine.resume();
+    _writeRunSnapshot();
   }
 
   void cancel() async {
     _engine.cancel();
+    _runStore.clear();
     try {
       await _nativeService.stopBlocking();
       await _nativeService.stopForegroundService();
@@ -178,6 +192,7 @@ class FocusSessionController extends StateNotifier<FocusSessionState?> {
     if (current == null || current.session.status != SessionStatus.completed) {
       _engine.complete();
     }
+    _runStore.clear();
     try {
       await _nativeService.stopBlocking();
       await _nativeService.stopForegroundService();
@@ -265,7 +280,14 @@ class FocusSessionController extends StateNotifier<FocusSessionState?> {
     _persistedRowId = int.tryParse(session.id);
 
     _engine.setBreakDurations(_settings.shortBreak, _settings.longBreak);
-    _engine.restoreSession(session);
+
+    final snapshot = _runStore.read();
+    if (snapshot != null) {
+      _engine.restoreRun(session, snapshot);
+    } else {
+      _engine.restoreSession(session);
+    }
+    _writeRunSnapshot();
 
     try {
       await _nativeService.startBlocking(
@@ -284,6 +306,38 @@ class FocusSessionController extends StateNotifier<FocusSessionState?> {
     } catch (e) {
       // Native service calls failed - the in-app session still runs
     }
+  }
+
+  /// Writes the current live phase of the running session so it can be
+  /// resumed precisely if the process gets killed.
+  void _writeRunSnapshot() {
+    final engineState = _engine.currentState;
+    if (engineState == null) return;
+
+    if (!engineState.session.isActive) {
+      _runStore.clear();
+      return;
+    }
+
+    final now = DateTime.now();
+    final snapshot = FocusRunSnapshot(
+      isOnBreak: engineState.isBreak,
+      cycle: engineState.currentCycle,
+      breakTotal: engineState.isBreak ? engineState.breakTotal : Duration.zero,
+      focusEndAt: !engineState.isBreak && !engineState.isPaused
+          ? now.add(engineState.remaining)
+          : null,
+      breakEndAt: engineState.isBreak && !engineState.isPaused
+          ? now.add(engineState.breakRemaining)
+          : null,
+      pausedRemaining: engineState.isPaused
+          ? (engineState.isBreak
+              ? engineState.breakRemaining
+              : engineState.remaining)
+          : null,
+      pausedAt: engineState.isPaused ? now : null,
+    );
+    _runStore.save(snapshot);
   }
 
   void completeBreak() {

@@ -4,6 +4,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:focuslock/l10n/app_localizations.dart';
 import 'package:focuslock/l10n/l10n_access.dart';
 import 'router.dart';
+import 'dependencies.dart';
 import '../../shared/theme/app_theme.dart';
 
 class FocusLockApp extends ConsumerWidget {
@@ -12,6 +13,18 @@ class FocusLockApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
+
+    // Global observer: whenever a session completes (from any screen) go to
+    // the completion page and refresh the cached dashboard/statistics data.
+    ref.listen(focusSessionControllerProvider, (previous, next) {
+      if (next != null && next.session.isCompleted) {
+        router.go('/completion');
+        ref.invalidate(homeDashboardProvider);
+        ref.invalidate(currentStreakProvider);
+        ref.invalidate(completedSessionsCountProvider);
+        ref.invalidate(totalFocusTimeProvider);
+      }
+    });
 
     return MaterialApp.router(
       title: 'FocusLock',

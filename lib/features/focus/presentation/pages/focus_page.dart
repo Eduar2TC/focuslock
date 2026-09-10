@@ -97,12 +97,6 @@ class _FocusPageState extends ConsumerState<FocusPage>
     final l10n = AppLocalizations.of(context)!;
     final sessionState = ref.watch(focusSessionControllerProvider);
 
-    ref.listen(focusSessionControllerProvider, (previous, next) {
-      if (next != null && next.session.isCompleted && mounted) {
-        context.go('/completion');
-      }
-    });
-
     if (sessionState == null) {
       return const Scaffold(
         backgroundColor: AppTheme.backgroundColor,

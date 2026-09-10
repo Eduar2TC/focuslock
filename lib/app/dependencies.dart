@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../core/database/app_database.dart' hide FocusSession;
 import '../core/services/native_focus_service.dart';
+import '../core/services/active_run_store.dart';
 import '../core/extensions/extensions.dart';
 import '../features/settings/data/repositories/settings_repository.dart';
 import '../features/focus/data/repositories/focus_session_repository.dart';
@@ -11,17 +12,20 @@ import '../features/focus/domain/usecases/pomodoro_engine.dart';
 import '../features/focus/presentation/controllers/focus_session_controller.dart';
 import '../features/focus/domain/entities/focus_session_state.dart';
 
-final sharedPreferencesProvider = FutureProvider<SharedPreferences>((ref) async {
+final sharedPreferencesProvider =
+    FutureProvider<SharedPreferences>((ref) async {
   return await SharedPreferences.getInstance();
 });
 
 final databaseProvider = Provider<AppDatabase>((ref) => AppDatabase());
 
-final nativeFocusServiceProvider = Provider<NativeFocusService>((ref) => NativeFocusService());
+final nativeFocusServiceProvider =
+    Provider<NativeFocusService>((ref) => NativeFocusService());
 
 final settingsRepositoryProvider = Provider<SettingsRepository>((ref) {
   // We can't use ref.watch here for async, so we'll use a different approach
-  throw UnimplementedError('SettingsRepository requires SharedPreferences to be initialized first');
+  throw UnimplementedError(
+      'SettingsRepository requires SharedPreferences to be initialized first');
 });
 
 final focusSessionRepositoryProvider = Provider<FocusSessionRepository>((ref) {
@@ -30,18 +34,27 @@ final focusSessionRepositoryProvider = Provider<FocusSessionRepository>((ref) {
 });
 
 final appRepositoryProvider = Provider<AppRepository>((ref) {
-  throw UnimplementedError('AppRepository requires SharedPreferences to be initialized first');
+  throw UnimplementedError(
+      'AppRepository requires SharedPreferences to be initialized first');
 });
 
-final pomodoroEngineProvider = Provider<PomodoroEngine>((ref) => PomodoroEngine());
+final activeRunStoreProvider = Provider<ActiveRunStore>((ref) {
+  throw UnimplementedError(
+      'ActiveRunStore requires SharedPreferences to be initialized first');
+});
 
-final focusSessionControllerProvider = StateNotifierProvider<FocusSessionController, FocusSessionState?>((ref) {
+final pomodoroEngineProvider =
+    Provider<PomodoroEngine>((ref) => PomodoroEngine());
+
+final focusSessionControllerProvider =
+    StateNotifierProvider<FocusSessionController, FocusSessionState?>((ref) {
   return FocusSessionController(
     ref.watch(pomodoroEngineProvider),
     ref.watch(settingsRepositoryProvider),
     ref.watch(appRepositoryProvider),
     ref.watch(nativeFocusServiceProvider),
     ref.watch(focusSessionRepositoryProvider),
+    ref.watch(activeRunStoreProvider),
   );
 });
 

@@ -49,6 +49,13 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
+    // Reload the numbers when a session completes while this tab is alive.
+    ref.listen(focusSessionControllerProvider, (previous, next) {
+      if (next != null && next.session.isCompleted) {
+        _loadStatistics();
+      }
+    });
+
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
@@ -72,8 +79,8 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
         Text(
           l10n.statsOverviewSection,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            color: AppTheme.textSecondaryColor,
-          ),
+                color: AppTheme.textSecondaryColor,
+              ),
         ),
         const SizedBox(height: 12),
         Row(
@@ -110,8 +117,8 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
           Text(
             l10n.statsTodayLabel,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: AppTheme.textSecondaryColor,
-            ),
+                  color: AppTheme.textSecondaryColor,
+                ),
           ),
           const SizedBox(height: 12),
           Container(
@@ -132,8 +139,8 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                 Text(
                   l10n.statsEmptyTodayTitle,
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: AppTheme.textSecondaryColor,
-                  ),
+                        color: AppTheme.textSecondaryColor,
+                      ),
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -163,8 +170,8 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
         Text(
           l10n.statsTodayWithCount(_todaySessions.length),
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            color: AppTheme.textSecondaryColor,
-          ),
+                color: AppTheme.textSecondaryColor,
+              ),
         ),
         const SizedBox(height: 12),
         ..._todaySessions.map((session) => _buildSessionCard(session, l10n)),
@@ -185,12 +192,16 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: session.isCompleted ? AppTheme.successColor.withValues(alpha: 0.12) : AppTheme.errorColor.withValues(alpha: 0.12),
+              color: session.isCompleted
+                  ? AppTheme.successColor.withValues(alpha: 0.12)
+                  : AppTheme.errorColor.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
               session.isCompleted ? Icons.check_circle : Icons.cancel,
-              color: session.isCompleted ? AppTheme.successColor : AppTheme.errorColor,
+              color: session.isCompleted
+                  ? AppTheme.successColor
+                  : AppTheme.errorColor,
               size: 24,
             ),
           ),
@@ -207,8 +218,8 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                 Text(
                   '${session.actualDuration.formattedShort} • ${session.completedCycles}/${session.cycles} cycles',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppTheme.textSecondaryColor,
-                  ),
+                        color: AppTheme.textSecondaryColor,
+                      ),
                 ),
               ],
             ),
@@ -216,8 +227,8 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
           Text(
             session.startedAt.timeFormatted(l10n),
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: AppTheme.textSecondaryColor,
-            ),
+                  color: AppTheme.textSecondaryColor,
+                ),
           ),
         ],
       ),

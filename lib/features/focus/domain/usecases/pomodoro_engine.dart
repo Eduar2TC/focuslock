@@ -3,6 +3,63 @@ import 'package:focuslock/features/focus/domain/entities/focus_session.dart';
 import 'package:focuslock/features/focus/domain/entities/focus_session_state.dart';
 import 'package:focuslock/features/focus/domain/entities/state_machine.dart';
 
+/// Externalized snapshot of a live focus run, used to resume the countdown
+/// precisely after the app process was killed (including mid-cycle and
+/// mid-break states).
+class FocusRunSnapshot {
+  const FocusRunSnapshot({
+    required this.isOnBreak,
+    required this.cycle,
+    this.breakTotal = Duration.zero,
+    this.focusEndAt,
+    this.breakEndAt,
+    this.pausedRemaining,
+    this.pausedAt,
+  });
+
+  static const key = 'activeRunSnapshot';
+
+  final bool isOnBreak;
+  final int cycle;
+  final Duration breakTotal;
+  final DateTime? focusEndAt;
+  final DateTime? breakEndAt;
+  final Duration? pausedRemaining;
+  final DateTime? pausedAt;
+
+  bool get isPaused => pausedAt != null || pausedRemaining != null;
+
+  Map<String, dynamic> toJson() => {
+        'isOnBreak': isOnBreak,
+        'cycle': cycle,
+        'breakTotalSeconds': breakTotal.inSeconds,
+        'focusEndAt': focusEndAt?.toIso8601String(),
+        'breakEndAt': breakEndAt?.toIso8601String(),
+        'pausedRemainingSeconds': pausedRemaining?.inSeconds,
+        'pausedAt': pausedAt?.toIso8601String(),
+      };
+
+  factory FocusRunSnapshot.fromJson(Map<String, dynamic> json) {
+    return FocusRunSnapshot(
+      isOnBreak: json['isOnBreak'] as bool? ?? false,
+      cycle: json['cycle'] as int? ?? 1,
+      breakTotal: Duration(seconds: json['breakTotalSeconds'] as int? ?? 0),
+      focusEndAt: json['focusEndAt'] != null
+          ? DateTime.tryParse(json['focusEndAt'] as String)
+          : null,
+      breakEndAt: json['breakEndAt'] != null
+          ? DateTime.tryParse(json['breakEndAt'] as String)
+          : null,
+      pausedRemaining: json['pausedRemainingSeconds'] != null
+          ? Duration(seconds: json['pausedRemainingSeconds'] as int)
+          : null,
+      pausedAt: json['pausedAt'] != null
+          ? DateTime.tryParse(json['pausedAt'] as String)
+          : null,
+    );
+  }
+}
+
 class PomodoroEngine {
   final FocusSessionStateMachine _stateMachine = FocusSessionStateMachine();
   Timer? _timer;
@@ -95,6 +152,66 @@ class PomodoroEngine {
       _currentState = _currentState!.copyWith(remaining: remaining);
       _startTimer();
     }
+    _stateController.add(_currentState!);
+  }
+
+  /// Restores a live run from a persisted snapshot, honoring the exact phase
+  /// (focus cycle, break, or paused) at the time the process was killed.
+  void restoreRun(FocusSession session, FocusRunSnapshot snap) {
+    _stopTimer();
+    _stopBreakTimer();
+
+    _session = session.copyWith(status: SessionStatus.running);
+    _sessionStartTime = session.startedAt;
+    _totalPausedDuration = Duration.zero;
+    _pauseStartTime = snap.isPaused ? snap.pausedAt ?? DateTime.now() : null;
+
+    if (snap.isOnBreak) {
+      final total = snap.breakTotal.inSeconds > 0
+          ? snap.breakTotal
+          : Duration(minutes: _shortBreakMinutes);
+      final remaining = snap.pausedRemaining ??
+          recoverRemaining(snap.breakEndAt ?? DateTime.now());
+      _breakEndTimestamp = snap.breakEndAt;
+
+      _currentState = FocusSessionState(
+        session: _session,
+        remaining: session.plannedDuration,
+        currentCycle: snap.cycle,
+        isBreak: true,
+        breakRemaining: remaining,
+        breakTotal: total,
+        isPaused: snap.isPaused,
+      );
+
+      if (!snap.isPaused) {
+        if (remaining == Duration.zero) {
+          completeBreak();
+        } else {
+          _startBreakTimer();
+        }
+      }
+    } else {
+      final remaining = snap.pausedRemaining ??
+          recoverRemaining(snap.focusEndAt ?? DateTime.now());
+      _endTimestamp = snap.focusEndAt;
+
+      _currentState = FocusSessionState(
+        session: _session,
+        remaining: remaining,
+        currentCycle: snap.cycle,
+        isPaused: snap.isPaused,
+      );
+
+      if (!snap.isPaused) {
+        if (remaining == Duration.zero) {
+          _handleFocusComplete();
+        } else {
+          _startTimer();
+        }
+      }
+    }
+
     _stateController.add(_currentState!);
   }
 
