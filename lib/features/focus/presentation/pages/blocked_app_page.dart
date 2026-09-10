@@ -7,11 +7,40 @@ import 'package:focuslock/shared/theme/app_theme.dart';
 import 'package:focuslock/core/extensions/extensions.dart';
 import 'package:focuslock/app/dependencies.dart';
 
-class BlockedAppPage extends ConsumerWidget {
+class BlockedAppPage extends ConsumerStatefulWidget {
   const BlockedAppPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<BlockedAppPage> createState() => _BlockedAppPageState();
+}
+
+class _BlockedAppPageState extends ConsumerState<BlockedAppPage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _restoreSession());
+  }
+
+  /// On a cold start the controller is empty, so restore the persisted
+  /// active session to render the real task and remaining time.
+  Future<void> _restoreSession() async {
+    final controller = ref.read(focusSessionControllerProvider);
+    if (controller != null && controller.session.isActive) return;
+
+    try {
+      final active = await ref.read(focusSessionRepositoryProvider).getActiveSession();
+      if (active != null && active.isActive && mounted) {
+        ref
+            .read(focusSessionControllerProvider.notifier)
+            .restoreActiveSession(active);
+      }
+    } catch (_) {
+      // Non-fatal: fall back to the default task/empty state.
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final state = ref.watch(focusSessionControllerProvider);
     final attemptedPackage = ref.watch(blockedAppAttemptProvider);
@@ -345,7 +374,13 @@ class BlockedAppPage extends ConsumerWidget {
           width: double.infinity,
           height: 56,
           child: FilledButton.icon(
-            onPressed: () => context.pop(),
+            onPressed: () {
+              if (context.canPop()) {
+                context.pop();
+              } else {
+                context.go('/focus');
+              }
+            },
             icon: const Icon(Icons.arrow_back_rounded,
                 size: 20, color: AppTheme.onPrimaryContainer),
             label: Text(l10n.blockedReturnToFocus),

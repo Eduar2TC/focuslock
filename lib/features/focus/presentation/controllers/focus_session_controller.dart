@@ -261,6 +261,21 @@ class FocusSessionController extends StateNotifier<FocusSessionState?> {
     }
   }
 
+  /// Seeds the controller from a persisted active session so the "stay
+  /// focused" gate shows the real task and remaining time after a cold start.
+  void restoreActiveSession(FocusSession session) {
+    if (state != null || !session.isActive) return;
+
+    final remaining = session.plannedDuration - session.actualDuration;
+    state = FocusSessionState(
+      session: session.copyWith(status: SessionStatus.running),
+      remaining: remaining.isNegative ? Duration.zero : remaining,
+      currentCycle: session.completedCycles >= session.cycles
+          ? session.cycles
+          : session.completedCycles + 1,
+    );
+  }
+
   void completeBreak() {
     _engine.completeBreak();
   }
