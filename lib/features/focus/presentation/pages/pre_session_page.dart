@@ -265,7 +265,7 @@ class _PreSessionPageState extends ConsumerState<PreSessionPage> {
               ),
             ),
             TextButton(
-              onPressed: () {},
+              onPressed: () => _showCustomDurationSheet(l10n),
               style: TextButton.styleFrom(
                 padding: const EdgeInsets.symmetric(horizontal: 4),
                 minimumSize: const Size(0, 32),
@@ -334,6 +334,21 @@ class _PreSessionPageState extends ConsumerState<PreSessionPage> {
         ),
       ],
     );
+  }
+
+  Future<void> _showCustomDurationSheet(AppLocalizations l10n) async {
+    final minutes = await showModalBottomSheet<int>(
+      context: context,
+      backgroundColor: AppTheme.surfaceContainerHigh,
+      barrierColor: Colors.black54,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (sheetContext) => const _CustomDurationSheet(),
+    );
+    if (minutes != null && mounted) {
+      setState(() => _selectedDuration = minutes);
+    }
   }
 
   Widget _buildBlockedAppsSection(AppLocalizations l10n) {
@@ -518,6 +533,7 @@ class _PreSessionPageState extends ConsumerState<PreSessionPage> {
         return;
       }
       if (!await _hasBlockingPermissions()) {
+        if (!mounted) return;
         context.push('/permissions');
         return;
       }
@@ -526,8 +542,10 @@ class _PreSessionPageState extends ConsumerState<PreSessionPage> {
     try {
       final controller = ref.read(focusSessionControllerProvider.notifier);
       controller.prepareSession(task, durationMinutes: _selectedDuration);
+      if (!mounted) return;
       context.push('/focus');
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('$e')),
       );
@@ -729,6 +747,123 @@ class _AppBlockChip extends StatelessWidget {
             app.appName,
             style:
                 Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 12),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CustomDurationSheet extends ConsumerStatefulWidget {
+  const _CustomDurationSheet();
+
+  @override
+  ConsumerState<_CustomDurationSheet> createState() =>
+      _CustomDurationSheetState();
+}
+
+class _CustomDurationSheetState extends ConsumerState<_CustomDurationSheet> {
+  static const int _min = 5;
+  static const int _max = 120;
+  static const int _step = 5;
+
+  late int _minutes;
+
+  @override
+  void initState() {
+    super.initState();
+    final saved = ref.read(settingsRepositoryProvider).focusDuration;
+    final clamped = saved.clamp(_min, _max);
+    _minutes = _min + ((clamped - _min) ~/ _step) * _step;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    const divisions = (_max - _min) ~/ _step;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 28),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 36,
+            height: 4,
+            decoration: BoxDecoration(
+              color: AppTheme.onSurfaceVariant.withValues(alpha: 0.3),
+              borderRadius: BorderRadius.circular(9999),
+            ),
+          ),
+          const SizedBox(height: 20),
+          Text(
+            l10n.presessionCustomDuration,
+            style: Theme.of(context).textTheme.headlineSmall,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            l10n.presessionCustomMin(_minutes),
+            style: const TextStyle(
+              fontFamily: AppTheme.fontFamily,
+              fontSize: 40,
+              fontWeight: FontWeight.w700,
+              color: AppTheme.primaryColor,
+            ),
+          ),
+          SliderTheme(
+            data: SliderTheme.of(context).copyWith(
+              trackHeight: 4,
+              activeTrackColor: AppTheme.primaryColor,
+              inactiveTrackColor: AppTheme.surfaceContainerHighest,
+              thumbColor: AppTheme.primaryColor,
+              overlayColor: AppTheme.primaryColor.withValues(alpha: 0.12),
+              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
+              overlayShape: const RoundSliderOverlayShape(overlayRadius: 18),
+              valueIndicatorColor: AppTheme.primaryColor,
+            ),
+            child: Slider(
+              value: _minutes.toDouble(),
+              min: _min.toDouble(),
+              max: _max.toDouble(),
+              divisions: divisions,
+              label: l10n.presessionCustomMin(_minutes),
+              onChanged: (v) => setState(() => _minutes = v.round()),
+            ),
+          ),
+          Row(
+            children: [
+              Text(
+                l10n.presessionCustomMin(_min),
+                style: const TextStyle(
+                  fontFamily: AppTheme.fontFamily,
+                  fontSize: 11,
+                  color: AppTheme.onSurfaceVariant,
+                ),
+              ),
+              const Spacer(),
+              Text(
+                l10n.presessionCustomMin(_max),
+                style: const TextStyle(
+                  fontFamily: AppTheme.fontFamily,
+                  fontSize: 11,
+                  color: AppTheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          SizedBox(
+            width: double.infinity,
+            height: 52,
+            child: FilledButton(
+              onPressed: () => Navigator.pop(context, _minutes),
+              style: FilledButton.styleFrom(
+                backgroundColor: AppTheme.primaryColor,
+                foregroundColor: AppTheme.onPrimaryColor,
+                shape: const StadiumBorder(),
+              ),
+              child: Text(l10n.presessionCustomSet),
+            ),
           ),
         ],
       ),

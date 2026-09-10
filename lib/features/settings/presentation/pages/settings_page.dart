@@ -50,6 +50,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 min: 5,
                 max: 120,
                 suffix: 'min',
+                step: 5,
               ),
               _buildDurationSetting(
                 l10n.settingsShortBreak,
@@ -72,6 +73,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 min: 5,
                 max: 60,
                 suffix: 'min',
+                step: 5,
               ),
               _buildDurationSetting(
                 l10n.settingsCycles,
@@ -278,34 +280,92 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     required int min,
     required int max,
     required String suffix,
+    int step = 1,
   }) {
-    return ListTile(
-      title: Text(label),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
+    final snapped = _snapToStep(value, min, max, step);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          IconButton(
-            onPressed: value > min ? () => onChanged(value - 1) : null,
-            icon: const Icon(Icons.remove_circle_outline, size: 20),
-          ),
-          SizedBox(
-            width: 48,
-            child: Center(
-              child: Text(
-                '$value$suffix',
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: AppTheme.primaryColor,
-                    ),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  label,
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
               ),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                decoration: BoxDecoration(
+                  color: AppTheme.primaryContainer.withValues(alpha: 0.45),
+                  borderRadius: BorderRadius.circular(9999),
+                ),
+                child: Text(
+                  '$snapped$suffix',
+                  style: const TextStyle(
+                    fontFamily: AppTheme.fontFamily,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.primaryColor,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SliderTheme(
+            data: SliderTheme.of(context).copyWith(
+              trackHeight: 4,
+              activeTrackColor: AppTheme.primaryColor,
+              inactiveTrackColor: AppTheme.surfaceContainerHighest,
+              thumbColor: AppTheme.primaryColor,
+              overlayColor: AppTheme.primaryColor.withValues(alpha: 0.12),
+              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
+              overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
+            ),
+            child: Slider(
+              value: snapped.toDouble(),
+              min: min.toDouble(),
+              max: max.toDouble(),
+              divisions: (max - min) ~/ step,
+              label: '$snapped$suffix',
+              onChanged: (v) => onChanged(v.round()),
             ),
           ),
-          IconButton(
-            onPressed: value < max ? () => onChanged(value + 1) : null,
-            icon: const Icon(Icons.add_circle_outline, size: 20),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Row(
+              children: [
+                Text(
+                  '$min$suffix',
+                  style: const TextStyle(
+                    fontFamily: AppTheme.fontFamily,
+                    fontSize: 11,
+                    color: AppTheme.onSurfaceVariant,
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  '$max$suffix',
+                  style: const TextStyle(
+                    fontFamily: AppTheme.fontFamily,
+                    fontSize: 11,
+                    color: AppTheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
     );
+  }
+
+  int _snapToStep(int value, int min, int max, int step) {
+    final clamped = value.clamp(min, max);
+    return min + ((clamped - min) / step).round() * step;
   }
 
   Widget _buildSwitchSetting(

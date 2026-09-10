@@ -153,6 +153,37 @@ void main() {
       expect(state.isPaused, isTrue);
       expect(state.breakRemaining, const Duration(minutes: 3));
     });
+
+    test('resume after a paused restore does not throw and resumes the clock',
+        () {
+      final engine = newEngine();
+      final startedAt = DateTime.now().subtract(const Duration(minutes: 5));
+      final session = FocusSession(
+        id: '1',
+        task: 'Task',
+        startedAt: startedAt,
+        plannedDuration: const Duration(minutes: 25),
+        cycles: 1,
+      );
+
+      engine.restoreRun(
+        session,
+        FocusRunSnapshot(
+          isOnBreak: false,
+          cycle: 1,
+          pausedRemaining: const Duration(minutes: 20),
+          pausedAt: DateTime.now().subtract(const Duration(minutes: 1)),
+          totalPausedDuration: const Duration(minutes: 1),
+        ),
+      );
+
+      // From status: paused -> running must be a legal transition.
+      expect(engine.currentState!.session.status, SessionStatus.paused);
+      expect(() => engine.resume(), returnsNormally);
+      expect(engine.currentState!.isPaused, isFalse);
+      expect(engine.currentState!.session.status, SessionStatus.running);
+      expect(engine.currentState!.session.isCompleted, isFalse);
+    });
   });
 
   group('PomodoroEngine.recordBlockedAttempt', () {

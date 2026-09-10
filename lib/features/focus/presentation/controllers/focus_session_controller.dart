@@ -59,6 +59,7 @@ class FocusSessionController extends StateNotifier<FocusSessionState?> {
   }
 
   bool _sessionSaved = false;
+  bool _completing = false;
   int? _persistedRowId;
 
   void _detectSessionCompletion(
@@ -105,6 +106,7 @@ class FocusSessionController extends StateNotifier<FocusSessionState?> {
 
   void prepareSession(String task, {int? durationMinutes}) {
     _sessionSaved = false;
+    _completing = false;
     _persistedRowId = null;
     _runStore.clear();
     final session = FocusSession(
@@ -178,7 +180,7 @@ class FocusSessionController extends StateNotifier<FocusSessionState?> {
     _writeRunSnapshot();
   }
 
-  void cancel() async {
+  Future<void> cancel() async {
     _engine.cancel();
     _runStore.clear();
     try {
@@ -187,22 +189,37 @@ class FocusSessionController extends StateNotifier<FocusSessionState?> {
     } catch (e) {
       // Ignore native service errors on cleanup
     }
-    await _saveSession(SessionStatus.cancelled);
+    try {
+      await _saveSession(SessionStatus.cancelled);
+    } catch (e) {
+      // Ignore session persistence errors so cancellation never crashes the UI
+    }
   }
 
-  void completeSession() async {
-    final current = _engine.currentState;
-    if (current == null || current.session.status != SessionStatus.completed) {
-      _engine.complete();
-    }
-    _runStore.clear();
+  Future<void> completeSession() async {
+    if (_completing) return;
+    _completing = true;
     try {
-      await _nativeService.stopBlocking();
-      await _nativeService.stopForegroundService();
-    } catch (e) {
-      // Ignore native service errors on cleanup
+      try {
+        final current = _engine.currentState;
+        if (current == null ||
+            current.session.status != SessionStatus.completed) {
+          _engine.complete();
+        }
+        _runStore.clear();
+        try {
+          await _nativeService.stopBlocking();
+          await _nativeService.stopForegroundService();
+        } catch (e) {
+          // Ignore native service errors on cleanup
+        }
+        await _saveSession(SessionStatus.completed);
+      } catch (e) {
+        // Ignore session persistence errors so completion never crashes the UI
+      }
+    } finally {
+      _completing = false;
     }
-    await _saveSession(SessionStatus.completed);
   }
 
   Future<void> _saveSession(SessionStatus finalStatus) async {
@@ -327,6 +344,7 @@ class FocusSessionController extends StateNotifier<FocusSessionState?> {
       isOnBreak: engineState.isBreak,
       cycle: engineState.currentCycle,
       breakTotal: engineState.isBreak ? engineState.breakTotal : Duration.zero,
+      totalPausedDuration: _engine.totalPausedDuration,
       focusEndAt: !engineState.isBreak && !engineState.isPaused
           ? now.add(engineState.remaining)
           : null,

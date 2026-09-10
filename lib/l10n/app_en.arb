@@ -419,6 +419,178 @@
   "@statsEmptyTodayCta": {
     "description": "Call to action button in the empty today state"
   },
+  "statsSubtitle": "Focus metrics & digital wellbeing",
+  "@statsSubtitle": {
+    "description": "Subtitle under the statistics title"
+  },
+  "statsPeriodWeek": "Week",
+  "@statsPeriodWeek": {
+    "description": "Week period switcher option"
+  },
+  "statsPeriodMonth": "Month",
+  "@statsPeriodMonth": {
+    "description": "Month period switcher option"
+  },
+  "statsDeltaToday": "{delta} vs yesterday",
+  "@statsDeltaToday": {
+    "description": "Focus time change compared with yesterday",
+    "placeholders": {
+      "delta": {"type": "String"}
+    }
+  },
+  "statsDeltaWeek": "{delta} vs last week",
+  "@statsDeltaWeek": {
+    "description": "Focus time change compared with the previous week",
+    "placeholders": {
+      "delta": {"type": "String"}
+    }
+  },
+  "statsDeltaMonth": "{delta} vs last month",
+  "@statsDeltaMonth": {
+    "description": "Focus time change compared with the previous month",
+    "placeholders": {
+      "delta": {"type": "String"}
+    }
+  },
+  "statsDailyAvg": "Daily avg: {value}",
+  "@statsDailyAvg": {
+    "description": "Average daily focus time in the period",
+    "placeholders": {
+      "value": {"type": "String"}
+    }
+  },
+  "statsCompletionRate": "{percent}% completion rate",
+  "@statsCompletionRate": {
+    "description": "Percentage of sessions completed",
+    "placeholders": {
+      "percent": {"type": "int"}
+    }
+  },
+  "statsSuccessRateLabel": "Success Rate",
+  "@statsSuccessRateLabel": {
+    "description": "Success rate metric label"
+  },
+  "statsSuccessRateSubtitle": "Strict mode intact",
+  "@statsSuccessRateSubtitle": {
+    "description": "Subtitle of the success rate metric"
+  },
+  "statsPausesUsed": "{count, plural, =1{{count} pause override used} other{{count} pause overrides used}}",
+  "@statsPausesUsed": {
+    "description": "Number of pause overrides used",
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "statsDays": "{count, plural, =1{day} other{days}}",
+  "@statsDays": {
+    "description": "Days unit",
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "statsBestStreak": "{count, plural, =1{Best: {count} day} other{Best: {count} days}}",
+  "@statsBestStreak": {
+    "description": "Best streak ever reached",
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "statsFocusChartTitle": "Focus Time (Hours)",
+  "@statsFocusChartTitle": {
+    "description": "Title of the focus time bar chart section"
+  },
+  "statsDailyTarget": "Daily target: {target}",
+  "@statsDailyTarget": {
+    "description": "Daily focus target displayed above the chart",
+    "placeholders": {
+      "target": {"type": "String"}
+    }
+  },
+  "statsTodayChip": "Today: {value}",
+  "@statsTodayChip": {
+    "description": "Today total shown as a chip in the chart header",
+    "placeholders": {
+      "value": {"type": "String"}
+    }
+  },
+  "statsPeriodTotal": "Total: {value}",
+  "@statsPeriodTotal": {
+    "description": "Total focus time for the selected period",
+    "placeholders": {
+      "value": {"type": "String"}
+    }
+  },
+  "statsWeeklyTotal": "Weekly Total: {value}",
+  "@statsWeeklyTotal": {
+    "description": "Total focus time of the week",
+    "placeholders": {
+      "value": {"type": "String"}
+    }
+  },
+  "statsOnTrack": "On track for {goal} goal",
+  "@statsOnTrack": {
+    "description": "Status when the weekly total is reaching the goal",
+    "placeholders": {
+      "goal": {"type": "String"}
+    }
+  },
+  "statsInterventionsTitle": "Interventions",
+  "@statsInterventionsTitle": {
+    "description": "Title of the distractions prevented section"
+  },
+  "statsInterventionsSubtitle": "Distractions prevented by FocusLock during sessions",
+  "@statsInterventionsSubtitle": {
+    "description": "Subtitle of the interventions section"
+  },
+  "statsInterventionsTotal": "{count, plural, =1{{count} Total} other{{count} Total}}",
+  "@statsInterventionsTotal": {
+    "description": "Total number of distractions blocked",
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "statsAppBlocking": "Blocking",
+  "@statsAppBlocking": {
+    "description": "Status pill indicating an app is being blocked"
+  },
+  "statsBlockedAppsEmpty": "No apps are being blocked yet.",
+  "@statsBlockedAppsEmpty": {
+    "description": "Shown in interventions when there are no blocked apps"
+  },
+  "statsQualityTitle": "Focus Quality & Pattern",
+  "@statsQualityTitle": {
+    "description": "Title of the focus quality insights section"
+  },
+  "statsInsightChip": "Insight",
+  "@statsInsightChip": {
+    "description": "Label of the insight badge"
+  },
+  "statsPeakWindow": "Peak Focus Window: {start} – {end}",
+  "@statsPeakWindow": {
+    "description": "Hour range where the user focuses the most",
+    "placeholders": {
+      "start": {"type": "String"},
+      "end": {"type": "String"}
+    }
+  },
+  "statsInsightBody": "You complete {percent}% of sessions started before noon.",
+  "@statsInsightBody": {
+    "description": "Share of completed sessions started before noon",
+    "placeholders": {
+      "percent": {"type": "int"}
+    }
+  },
+  "statsConsistencyTitle": "Consistency Score",
+  "@statsConsistencyTitle": {
+    "description": "Title of the consistency score section"
+  },
+  "statsConsistencyValue": "{score} / 100",
+  "@statsConsistencyValue": {
+    "description": "Consistency score out of 100",
+    "placeholders": {
+      "score": {"type": "int"}
+    }
+  },
 
   "appsAppbarTitle": "Blocked Apps",
   "@appsAppbarTitle": {
@@ -649,6 +821,21 @@
   "@presessionCustom": {
     "description": "Custom duration action"
   },
+  "presessionCustomDuration": "Custom duration",
+  "@presessionCustomDuration": {
+    "description": "Custom duration bottom sheet title"
+  },
+  "presessionCustomSet": "Set Duration",
+  "@presessionCustomSet": {
+    "description": "Confirm button for the custom duration sheet"
+  },
+  "presessionCustomMin": "{min} min",
+  "@presessionCustomMin": {
+    "description": "Selected custom duration value",
+    "placeholders": {
+      "min": {"type": "int"}
+    }
+  },
   "presessionMin": "min",
   "@presessionMin": {
     "description": "Minutes unit label"
@@ -761,6 +948,10 @@
   "focusUnlockPhone": "Unlock Phone",
   "@focusUnlockPhone": {
     "description": "Button to cancel the session and unlock the phone"
+  },
+  "focusSheetConfirm": "End Session",
+  "@focusSheetConfirm": {
+    "description": "Confirm button to end the session early (standard mode)"
   },
 
   "blockedDefaultTask": "Your focus session",

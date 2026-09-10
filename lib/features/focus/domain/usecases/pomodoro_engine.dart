@@ -15,6 +15,7 @@ class FocusRunSnapshot {
     this.breakEndAt,
     this.pausedRemaining,
     this.pausedAt,
+    this.totalPausedDuration = Duration.zero,
   });
 
   static const key = 'activeRunSnapshot';
@@ -26,6 +27,7 @@ class FocusRunSnapshot {
   final DateTime? breakEndAt;
   final Duration? pausedRemaining;
   final DateTime? pausedAt;
+  final Duration totalPausedDuration;
 
   bool get isPaused => pausedAt != null || pausedRemaining != null;
 
@@ -37,6 +39,7 @@ class FocusRunSnapshot {
         'breakEndAt': breakEndAt?.toIso8601String(),
         'pausedRemainingSeconds': pausedRemaining?.inSeconds,
         'pausedAt': pausedAt?.toIso8601String(),
+        'totalPausedSeconds': totalPausedDuration.inSeconds,
       };
 
   factory FocusRunSnapshot.fromJson(Map<String, dynamic> json) {
@@ -56,6 +59,8 @@ class FocusRunSnapshot {
       pausedAt: json['pausedAt'] != null
           ? DateTime.tryParse(json['pausedAt'] as String)
           : null,
+      totalPausedDuration:
+          Duration(seconds: json['totalPausedSeconds'] as int? ?? 0),
     );
   }
 }
@@ -88,6 +93,8 @@ class PomodoroEngine {
 
   Duration _totalPausedDuration = Duration.zero;
   DateTime? _pauseStartTime;
+
+  Duration get totalPausedDuration => _totalPausedDuration;
 
   int get totalElapsedSeconds {
     if (_sessionStartTime == null) return 0;
@@ -161,10 +168,16 @@ class PomodoroEngine {
     _stopTimer();
     _stopBreakTimer();
 
-    _session = session.copyWith(status: SessionStatus.running);
+    _session = session.copyWith(
+      status:
+          snap.isPaused ? SessionStatus.paused : SessionStatus.running,
+    );
     _sessionStartTime = session.startedAt;
-    _totalPausedDuration = Duration.zero;
-    _pauseStartTime = snap.isPaused ? snap.pausedAt ?? DateTime.now() : null;
+    _totalPausedDuration = snap.totalPausedDuration +
+        (snap.isPaused && snap.pausedAt != null
+            ? DateTime.now().difference(snap.pausedAt!)
+            : Duration.zero);
+    _pauseStartTime = snap.isPaused ? DateTime.now() : null;
 
     if (snap.isOnBreak) {
       final total = snap.breakTotal.inSeconds > 0

@@ -492,7 +492,7 @@ class _FocusPageState extends ConsumerState<FocusPage>
                           backgroundColor: AppTheme.errorContainer,
                           foregroundColor: AppTheme.onErrorContainer,
                         ),
-                        child: Text(l10n.focusUnlockPhone),
+                        child: Text(l10n.focusSheetConfirm),
                       ),
                     ),
                   ),
