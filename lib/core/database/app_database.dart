@@ -112,7 +112,9 @@ class AppDatabase extends _$AppDatabase {
     DateTime expectedDate = DateTime(now.year, now.month, now.day);
 
     for (final date in dates) {
-      if (date.isAtSameMomentAs(expectedDate) || date.isAfter(expectedDate)) {
+      if (date.isAfter(expectedDate)) {
+        continue;
+      } else if (date.isAtSameMomentAs(expectedDate)) {
         streak++;
         expectedDate = date.subtract(const Duration(days: 1));
       } else if (date.isBefore(expectedDate)) {

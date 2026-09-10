@@ -680,6 +680,186 @@ abstract class AppLocalizations {
   /// **'Start Focus'**
   String get statsEmptyTodayCta;
 
+  /// Subtitle under the statistics title
+  ///
+  /// In en, this message translates to:
+  /// **'Focus metrics & digital wellbeing'**
+  String get statsSubtitle;
+
+  /// Week period switcher option
+  ///
+  /// In en, this message translates to:
+  /// **'Week'**
+  String get statsPeriodWeek;
+
+  /// Month period switcher option
+  ///
+  /// In en, this message translates to:
+  /// **'Month'**
+  String get statsPeriodMonth;
+
+  /// Focus time change compared with yesterday
+  ///
+  /// In en, this message translates to:
+  /// **'{delta} vs yesterday'**
+  String statsDeltaToday(String delta);
+
+  /// Focus time change compared with the previous week
+  ///
+  /// In en, this message translates to:
+  /// **'{delta} vs last week'**
+  String statsDeltaWeek(String delta);
+
+  /// Focus time change compared with the previous month
+  ///
+  /// In en, this message translates to:
+  /// **'{delta} vs last month'**
+  String statsDeltaMonth(String delta);
+
+  /// Average daily focus time in the period
+  ///
+  /// In en, this message translates to:
+  /// **'Daily avg: {value}'**
+  String statsDailyAvg(String value);
+
+  /// Percentage of sessions completed
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% completion rate'**
+  String statsCompletionRate(int percent);
+
+  /// Success rate metric label
+  ///
+  /// In en, this message translates to:
+  /// **'Success Rate'**
+  String get statsSuccessRateLabel;
+
+  /// Subtitle of the success rate metric
+  ///
+  /// In en, this message translates to:
+  /// **'Strict mode intact'**
+  String get statsSuccessRateSubtitle;
+
+  /// Number of pause overrides used
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{count} pause override used} other{{count} pause overrides used}}'**
+  String statsPausesUsed(int count);
+
+  /// Days unit
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{day} other{days}}'**
+  String statsDays(int count);
+
+  /// Best streak ever reached
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Best: {count} day} other{Best: {count} days}}'**
+  String statsBestStreak(int count);
+
+  /// Title of the focus time bar chart section
+  ///
+  /// In en, this message translates to:
+  /// **'Focus Time (Hours)'**
+  String get statsFocusChartTitle;
+
+  /// Daily focus target displayed above the chart
+  ///
+  /// In en, this message translates to:
+  /// **'Daily target: {target}'**
+  String statsDailyTarget(String target);
+
+  /// Today total shown as a chip in the chart header
+  ///
+  /// In en, this message translates to:
+  /// **'Today: {value}'**
+  String statsTodayChip(String value);
+
+  /// Total focus time for the selected period
+  ///
+  /// In en, this message translates to:
+  /// **'Total: {value}'**
+  String statsPeriodTotal(String value);
+
+  /// Total focus time of the week
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly Total: {value}'**
+  String statsWeeklyTotal(String value);
+
+  /// Status when the weekly total is reaching the goal
+  ///
+  /// In en, this message translates to:
+  /// **'On track for {goal} goal'**
+  String statsOnTrack(String goal);
+
+  /// Title of the distractions prevented section
+  ///
+  /// In en, this message translates to:
+  /// **'Interventions'**
+  String get statsInterventionsTitle;
+
+  /// Subtitle of the interventions section
+  ///
+  /// In en, this message translates to:
+  /// **'Distractions prevented by FocusLock during sessions'**
+  String get statsInterventionsSubtitle;
+
+  /// Total number of distractions blocked
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{count} Total} other{{count} Total}}'**
+  String statsInterventionsTotal(int count);
+
+  /// Status pill indicating an app is being blocked
+  ///
+  /// In en, this message translates to:
+  /// **'Blocking'**
+  String get statsAppBlocking;
+
+  /// Shown in interventions when there are no blocked apps
+  ///
+  /// In en, this message translates to:
+  /// **'No apps are being blocked yet.'**
+  String get statsBlockedAppsEmpty;
+
+  /// Title of the focus quality insights section
+  ///
+  /// In en, this message translates to:
+  /// **'Focus Quality & Pattern'**
+  String get statsQualityTitle;
+
+  /// Label of the insight badge
+  ///
+  /// In en, this message translates to:
+  /// **'Insight'**
+  String get statsInsightChip;
+
+  /// Hour range where the user focuses the most
+  ///
+  /// In en, this message translates to:
+  /// **'Peak Focus Window: {start} – {end}'**
+  String statsPeakWindow(String start, String end);
+
+  /// Share of completed sessions started before noon
+  ///
+  /// In en, this message translates to:
+  /// **'You complete {percent}% of sessions started before noon.'**
+  String statsInsightBody(int percent);
+
+  /// Title of the consistency score section
+  ///
+  /// In en, this message translates to:
+  /// **'Consistency Score'**
+  String get statsConsistencyTitle;
+
+  /// Consistency score out of 100
+  ///
+  /// In en, this message translates to:
+  /// **'{score} / 100'**
+  String statsConsistencyValue(int score);
+
   /// Apps page title
   ///
   /// In en, this message translates to:
@@ -703,6 +883,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Grant Accessibility Access'**
   String get appsGrantAccessibilityAccess;
+
+  /// Permissions gate page title
+  ///
+  /// In en, this message translates to:
+  /// **'Permissions Required'**
+  String get permissionsPageTitle;
+
+  /// Permissions gate page subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'A strict session blocks other apps. FocusLock needs these permissions to work.'**
+  String get permissionsPageSubtitle;
+
+  /// Usage access permission label
+  ///
+  /// In en, this message translates to:
+  /// **'Usage Access'**
+  String get permissionsUsageStats;
+
+  /// Accessibility permission label
+  ///
+  /// In en, this message translates to:
+  /// **'Accessibility Access'**
+  String get permissionsAccessibility;
+
+  /// Granted permission status
+  ///
+  /// In en, this message translates to:
+  /// **'Granted'**
+  String get permissionsGranted;
+
+  /// Missing permission status
+  ///
+  /// In en, this message translates to:
+  /// **'Missing'**
+  String get permissionsMissing;
+
+  /// All permissions granted message
+  ///
+  /// In en, this message translates to:
+  /// **'All permissions granted'**
+  String get permissionsAllGranted;
+
+  /// Continue button on the permissions gate
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get permissionsContinue;
+
+  /// Snackbar when trying to start a session with no apps to block
+  ///
+  /// In en, this message translates to:
+  /// **'Add at least one app to block before starting.'**
+  String get presessionErrorRequiresApps;
 
   /// Empty apps title
   ///
@@ -926,6 +1160,24 @@ abstract class AppLocalizations {
   /// **'Custom'**
   String get presessionCustom;
 
+  /// Custom duration bottom sheet title
+  ///
+  /// In en, this message translates to:
+  /// **'Custom duration'**
+  String get presessionCustomDuration;
+
+  /// Confirm button for the custom duration sheet
+  ///
+  /// In en, this message translates to:
+  /// **'Set Duration'**
+  String get presessionCustomSet;
+
+  /// Selected custom duration value
+  ///
+  /// In en, this message translates to:
+  /// **'{min} min'**
+  String presessionCustomMin(int min);
+
   /// Minutes unit label
   ///
   /// In en, this message translates to:
@@ -1075,6 +1327,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unlock Phone'**
   String get focusUnlockPhone;
+
+  /// Confirm button to end the session early (standard mode)
+  ///
+  /// In en, this message translates to:
+  /// **'End Session'**
+  String get focusSheetConfirm;
 
   /// Fallback task label when no intention is set
   ///

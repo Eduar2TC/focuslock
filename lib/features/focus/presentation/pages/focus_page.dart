@@ -44,16 +44,16 @@ class _FocusPageState extends ConsumerState<FocusPage>
   Future<void> _checkBlockedAppAttempt() async {
     if (!mounted) return;
     try {
-      final attempt = await ref
-          .read(nativeFocusServiceProvider)
-          .getLastBlockedAppAttempt();
+      final attempt =
+          await ref.read(nativeFocusServiceProvider).getLastBlockedAppAttempt();
       if (attempt == null || !mounted) return;
       final sessionState = ref.read(focusSessionControllerProvider);
       if (sessionState == null || !sessionState.session.isActive) return;
 
       final packageName = attempt['packageName'] ?? attempt.values.first;
       ref.read(blockedAppAttemptProvider.notifier).state = packageName;
-      ref.read(focusSessionControllerProvider.notifier)
+      ref
+          .read(focusSessionControllerProvider.notifier)
           .onBlockedAppAttempted(packageName);
       if (mounted) {
         context.push('/blocked-app');
@@ -63,16 +63,32 @@ class _FocusPageState extends ConsumerState<FocusPage>
     }
   }
 
-  void _recoverOrStartSession() {
+  Future<void> _recoverOrStartSession() async {
     if (_sessionStarted) return;
     _sessionStarted = true;
     final controller = ref.read(focusSessionControllerProvider.notifier);
     final sessionState = ref.read(focusSessionControllerProvider);
 
-    if (sessionState != null && sessionState.session.isActive) {
-      controller.recoverSession();
-    } else {
-      controller.startSession();
+    if (sessionState != null) {
+      if (sessionState.session.isActive) {
+        controller.recoverSession();
+      } else if (sessionState.session.isCompleted ||
+          sessionState.session.isCancelled) {
+        // Never restart a session that already ended.
+      } else {
+        controller.startSession();
+      }
+      return;
+    }
+
+    try {
+      final active =
+          await ref.read(focusSessionRepositoryProvider).getActiveSession();
+      if (active != null && active.isActive && mounted) {
+        await controller.restoreActiveSession(active);
+      }
+    } catch (_) {
+      // Ignore restore errors - the user can start a fresh session
     }
   }
 
@@ -80,12 +96,6 @@ class _FocusPageState extends ConsumerState<FocusPage>
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final sessionState = ref.watch(focusSessionControllerProvider);
-
-    ref.listen(focusSessionControllerProvider, (previous, next) {
-      if (next != null && next.session.isCompleted && mounted) {
-        context.go('/completion');
-      }
-    });
 
     if (sessionState == null) {
       return const Scaffold(
@@ -260,7 +270,8 @@ class _FocusPageState extends ConsumerState<FocusPage>
     );
   }
 
-  Widget _buildTaskContext(AppLocalizations l10n, String task, int blockedCount) {
+  Widget _buildTaskContext(
+      AppLocalizations l10n, String task, int blockedCount) {
     return Column(
       children: [
         Text(
@@ -310,7 +321,8 @@ class _FocusPageState extends ConsumerState<FocusPage>
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.spa_rounded, size: 16, color: AppTheme.tertiaryColor),
+          const Icon(Icons.spa_rounded,
+              size: 16, color: AppTheme.tertiaryColor),
           const SizedBox(width: 8),
           Flexible(
             child: Text(
@@ -331,7 +343,11 @@ class _FocusPageState extends ConsumerState<FocusPage>
   Widget _buildControls(AppLocalizations l10n, bool isPaused) {
     final controller = ref.read(focusSessionControllerProvider.notifier);
     final settings = ref.read(settingsRepositoryProvider);
-    final allowCancel = settings.allowCancelSession;
+    // Strict sessions never allow cancelling, regardless of the stored
+    // settings value (which the Settings screen may have changed).
+    final allowCancel = settings.enforcementLevel == 'strict'
+        ? false
+        : settings.allowCancelSession;
 
     return Column(
       children: [
@@ -353,7 +369,9 @@ class _FocusPageState extends ConsumerState<FocusPage>
             icon: Icon(
               isPaused ? Icons.play_arrow_rounded : Icons.pause_rounded,
               size: 20,
-              color: isPaused ? AppTheme.onPrimaryContainer : AppTheme.primaryColor,
+              color: isPaused
+                  ? AppTheme.onPrimaryContainer
+                  : AppTheme.primaryColor,
             ),
             label: Text(isPaused ? l10n.focusResume : l10n.focusPause),
           ),
@@ -437,7 +455,10 @@ class _FocusPageState extends ConsumerState<FocusPage>
               Text(
                 l10n.focusSheetBody,
                 textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 13),
+                style: Theme.of(context)
+                    .textTheme
+                    .bodySmall
+                    ?.copyWith(fontSize: 13),
               ),
               const SizedBox(height: 20),
               Row(
@@ -462,15 +483,16 @@ class _FocusPageState extends ConsumerState<FocusPage>
                       child: FilledButton(
                         onPressed: () {
                           Navigator.pop(context);
-                          _safeCall(() =>
-                              ref.read(focusSessionControllerProvider.notifier).cancel());
+                          _safeCall(() => ref
+                              .read(focusSessionControllerProvider.notifier)
+                              .cancel());
                           context.go('/home');
                         },
                         style: FilledButton.styleFrom(
                           backgroundColor: AppTheme.errorContainer,
                           foregroundColor: AppTheme.onErrorContainer,
                         ),
-                        child: Text(l10n.focusUnlockPhone),
+                        child: Text(l10n.focusSheetConfirm),
                       ),
                     ),
                   ),
@@ -515,7 +537,8 @@ class _FocusRing extends StatelessWidget {
             child: CustomPaint(
               painter: _RingPainter(
                 fraction: fraction.clamp(0.0, 1.0),
-                trackColor: AppTheme.surfaceContainerHigh.withValues(alpha: 0.6),
+                trackColor:
+                    AppTheme.surfaceContainerHigh.withValues(alpha: 0.6),
                 progressColor: AppTheme.primaryContainer,
               ),
             ),

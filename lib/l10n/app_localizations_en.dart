@@ -325,6 +325,155 @@ class AppLocalizationsEn extends AppLocalizations {
   String get statsEmptyTodayCta => 'Start Focus';
 
   @override
+  String get statsSubtitle => 'Focus metrics & digital wellbeing';
+
+  @override
+  String get statsPeriodWeek => 'Week';
+
+  @override
+  String get statsPeriodMonth => 'Month';
+
+  @override
+  String statsDeltaToday(String delta) {
+    return '$delta vs yesterday';
+  }
+
+  @override
+  String statsDeltaWeek(String delta) {
+    return '$delta vs last week';
+  }
+
+  @override
+  String statsDeltaMonth(String delta) {
+    return '$delta vs last month';
+  }
+
+  @override
+  String statsDailyAvg(String value) {
+    return 'Daily avg: $value';
+  }
+
+  @override
+  String statsCompletionRate(int percent) {
+    return '$percent% completion rate';
+  }
+
+  @override
+  String get statsSuccessRateLabel => 'Success Rate';
+
+  @override
+  String get statsSuccessRateSubtitle => 'Strict mode intact';
+
+  @override
+  String statsPausesUsed(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count pause overrides used',
+      one: '$count pause override used',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String statsDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'days',
+      one: 'day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String statsBestStreak(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Best: $count days',
+      one: 'Best: $count day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get statsFocusChartTitle => 'Focus Time (Hours)';
+
+  @override
+  String statsDailyTarget(String target) {
+    return 'Daily target: $target';
+  }
+
+  @override
+  String statsTodayChip(String value) {
+    return 'Today: $value';
+  }
+
+  @override
+  String statsPeriodTotal(String value) {
+    return 'Total: $value';
+  }
+
+  @override
+  String statsWeeklyTotal(String value) {
+    return 'Weekly Total: $value';
+  }
+
+  @override
+  String statsOnTrack(String goal) {
+    return 'On track for $goal goal';
+  }
+
+  @override
+  String get statsInterventionsTitle => 'Interventions';
+
+  @override
+  String get statsInterventionsSubtitle =>
+      'Distractions prevented by FocusLock during sessions';
+
+  @override
+  String statsInterventionsTotal(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Total',
+      one: '$count Total',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get statsAppBlocking => 'Blocking';
+
+  @override
+  String get statsBlockedAppsEmpty => 'No apps are being blocked yet.';
+
+  @override
+  String get statsQualityTitle => 'Focus Quality & Pattern';
+
+  @override
+  String get statsInsightChip => 'Insight';
+
+  @override
+  String statsPeakWindow(String start, String end) {
+    return 'Peak Focus Window: $start – $end';
+  }
+
+  @override
+  String statsInsightBody(int percent) {
+    return 'You complete $percent% of sessions started before noon.';
+  }
+
+  @override
+  String get statsConsistencyTitle => 'Consistency Score';
+
+  @override
+  String statsConsistencyValue(int score) {
+    return '$score / 100';
+  }
+
+  @override
   String get appsAppbarTitle => 'Blocked Apps';
 
   @override
@@ -335,6 +484,35 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get appsGrantAccessibilityAccess => 'Grant Accessibility Access';
+
+  @override
+  String get permissionsPageTitle => 'Permissions Required';
+
+  @override
+  String get permissionsPageSubtitle =>
+      'A strict session blocks other apps. FocusLock needs these permissions to work.';
+
+  @override
+  String get permissionsUsageStats => 'Usage Access';
+
+  @override
+  String get permissionsAccessibility => 'Accessibility Access';
+
+  @override
+  String get permissionsGranted => 'Granted';
+
+  @override
+  String get permissionsMissing => 'Missing';
+
+  @override
+  String get permissionsAllGranted => 'All permissions granted';
+
+  @override
+  String get permissionsContinue => 'Continue';
+
+  @override
+  String get presessionErrorRequiresApps =>
+      'Add at least one app to block before starting.';
 
   @override
   String get appsEmptyTitle => 'No apps found';
@@ -478,6 +656,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get presessionCustom => 'Custom';
 
   @override
+  String get presessionCustomDuration => 'Custom duration';
+
+  @override
+  String get presessionCustomSet => 'Set Duration';
+
+  @override
+  String presessionCustomMin(int min) {
+    return '$min min';
+  }
+
+  @override
   String get presessionMin => 'min';
 
   @override
@@ -568,6 +757,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get focusUnlockPhone => 'Unlock Phone';
+
+  @override
+  String get focusSheetConfirm => 'End Session';
 
   @override
   String get blockedDefaultTask => 'Your focus session';

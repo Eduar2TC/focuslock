@@ -3,6 +3,68 @@ import 'package:focuslock/features/focus/domain/entities/focus_session.dart';
 import 'package:focuslock/features/focus/domain/entities/focus_session_state.dart';
 import 'package:focuslock/features/focus/domain/entities/state_machine.dart';
 
+/// Externalized snapshot of a live focus run, used to resume the countdown
+/// precisely after the app process was killed (including mid-cycle and
+/// mid-break states).
+class FocusRunSnapshot {
+  const FocusRunSnapshot({
+    required this.isOnBreak,
+    required this.cycle,
+    this.breakTotal = Duration.zero,
+    this.focusEndAt,
+    this.breakEndAt,
+    this.pausedRemaining,
+    this.pausedAt,
+    this.totalPausedDuration = Duration.zero,
+  });
+
+  static const key = 'activeRunSnapshot';
+
+  final bool isOnBreak;
+  final int cycle;
+  final Duration breakTotal;
+  final DateTime? focusEndAt;
+  final DateTime? breakEndAt;
+  final Duration? pausedRemaining;
+  final DateTime? pausedAt;
+  final Duration totalPausedDuration;
+
+  bool get isPaused => pausedAt != null || pausedRemaining != null;
+
+  Map<String, dynamic> toJson() => {
+        'isOnBreak': isOnBreak,
+        'cycle': cycle,
+        'breakTotalSeconds': breakTotal.inSeconds,
+        'focusEndAt': focusEndAt?.toIso8601String(),
+        'breakEndAt': breakEndAt?.toIso8601String(),
+        'pausedRemainingSeconds': pausedRemaining?.inSeconds,
+        'pausedAt': pausedAt?.toIso8601String(),
+        'totalPausedSeconds': totalPausedDuration.inSeconds,
+      };
+
+  factory FocusRunSnapshot.fromJson(Map<String, dynamic> json) {
+    return FocusRunSnapshot(
+      isOnBreak: json['isOnBreak'] as bool? ?? false,
+      cycle: json['cycle'] as int? ?? 1,
+      breakTotal: Duration(seconds: json['breakTotalSeconds'] as int? ?? 0),
+      focusEndAt: json['focusEndAt'] != null
+          ? DateTime.tryParse(json['focusEndAt'] as String)
+          : null,
+      breakEndAt: json['breakEndAt'] != null
+          ? DateTime.tryParse(json['breakEndAt'] as String)
+          : null,
+      pausedRemaining: json['pausedRemainingSeconds'] != null
+          ? Duration(seconds: json['pausedRemainingSeconds'] as int)
+          : null,
+      pausedAt: json['pausedAt'] != null
+          ? DateTime.tryParse(json['pausedAt'] as String)
+          : null,
+      totalPausedDuration:
+          Duration(seconds: json['totalPausedSeconds'] as int? ?? 0),
+    );
+  }
+}
+
 class PomodoroEngine {
   final FocusSessionStateMachine _stateMachine = FocusSessionStateMachine();
   Timer? _timer;
@@ -31,6 +93,8 @@ class PomodoroEngine {
 
   Duration _totalPausedDuration = Duration.zero;
   DateTime? _pauseStartTime;
+
+  Duration get totalPausedDuration => _totalPausedDuration;
 
   int get totalElapsedSeconds {
     if (_sessionStartTime == null) return 0;
@@ -71,6 +135,112 @@ class PomodoroEngine {
     _stateController.add(_currentState!);
   }
 
+  /// Restores a persisted active session after the app was re-launched from a
+  /// cold start, resuming the countdown from the wall clock so time spent
+  /// while the app was dead is respected.
+  void restoreSession(FocusSession session) {
+    _stopTimer();
+    _stopBreakTimer();
+
+    _session = session.copyWith(status: SessionStatus.running);
+    _sessionStartTime = _session.startedAt;
+
+    _currentState = FocusSessionState(
+      session: _session,
+      remaining: session.plannedDuration,
+      currentCycle: session.completedCycles + 1,
+    );
+
+    _endTimestamp = _session.startedAt.add(session.plannedDuration);
+    final remaining = recoverRemaining(_endTimestamp!);
+    if (remaining == Duration.zero) {
+      _handleFocusComplete();
+    } else {
+      _currentState = _currentState!.copyWith(remaining: remaining);
+      _startTimer();
+    }
+    _stateController.add(_currentState!);
+  }
+
+  /// Restores a live run from a persisted snapshot, honoring the exact phase
+  /// (focus cycle, break, or paused) at the time the process was killed.
+  void restoreRun(FocusSession session, FocusRunSnapshot snap) {
+    _stopTimer();
+    _stopBreakTimer();
+
+    _session = session.copyWith(
+      status:
+          snap.isPaused ? SessionStatus.paused : SessionStatus.running,
+    );
+    _sessionStartTime = session.startedAt;
+    _totalPausedDuration = snap.totalPausedDuration +
+        (snap.isPaused && snap.pausedAt != null
+            ? DateTime.now().difference(snap.pausedAt!)
+            : Duration.zero);
+    _pauseStartTime = snap.isPaused ? DateTime.now() : null;
+
+    if (snap.isOnBreak) {
+      final total = snap.breakTotal.inSeconds > 0
+          ? snap.breakTotal
+          : Duration(minutes: _shortBreakMinutes);
+      final remaining = snap.pausedRemaining ??
+          recoverRemaining(snap.breakEndAt ?? DateTime.now());
+      _breakEndTimestamp = snap.breakEndAt;
+
+      _currentState = FocusSessionState(
+        session: _session,
+        remaining: session.plannedDuration,
+        currentCycle: snap.cycle,
+        isBreak: true,
+        breakRemaining: remaining,
+        breakTotal: total,
+        isPaused: snap.isPaused,
+      );
+
+      if (!snap.isPaused) {
+        if (remaining == Duration.zero) {
+          completeBreak();
+        } else {
+          _startBreakTimer();
+        }
+      }
+    } else {
+      final remaining = snap.pausedRemaining ??
+          recoverRemaining(snap.focusEndAt ?? DateTime.now());
+      _endTimestamp = snap.focusEndAt;
+
+      _currentState = FocusSessionState(
+        session: _session,
+        remaining: remaining,
+        currentCycle: snap.cycle,
+        isPaused: snap.isPaused,
+      );
+
+      if (!snap.isPaused) {
+        if (remaining == Duration.zero) {
+          _handleFocusComplete();
+        } else {
+          _startTimer();
+        }
+      }
+    }
+
+    _stateController.add(_currentState!);
+  }
+
+  /// Records a blocked-app attempt on the engine session so it is persisted
+  /// through the same single source of truth as the rest of the session data.
+  void recordBlockedAttempt() {
+    if (_currentState == null) return;
+
+    final current = _currentState!.session;
+    _session = current.copyWith(
+      blockedAttemptCount: current.blockedAttemptCount + 1,
+    );
+    _currentState = _currentState!.copyWith(session: _session);
+    _stateController.add(_currentState!);
+  }
+
   void pause() {
     if (_currentState == null) return;
 
@@ -81,6 +251,7 @@ class PomodoroEngine {
 
     _session = _session.copyWith(status: newStatus);
     _stopTimer();
+    _stopBreakTimer();
     _pauseStartTime = DateTime.now();
 
     _currentState = _currentState!.copyWith(
@@ -106,9 +277,13 @@ class PomodoroEngine {
       _pauseStartTime = null;
     }
 
-    _endTimestamp = DateTime.now().add(_currentState!.remaining);
-
-    _startTimer();
+    if (_currentState!.isBreak) {
+      _breakEndTimestamp = DateTime.now().add(_currentState!.breakRemaining);
+      _startBreakTimer();
+    } else {
+      _endTimestamp = DateTime.now().add(_currentState!.remaining);
+      _startTimer();
+    }
 
     _currentState = _currentState!.copyWith(
       session: _session,
@@ -162,6 +337,8 @@ class PomodoroEngine {
   void startBreak(Duration breakDuration) {
     if (_currentState == null) return;
 
+    _stopTimer();
+
     _breakEndTimestamp = DateTime.now().add(breakDuration);
 
     _currentState = _currentState!.copyWith(
@@ -176,6 +353,8 @@ class PomodoroEngine {
 
   void completeBreak() {
     if (_currentState == null) return;
+
+    _stopBreakTimer();
 
     final nextCycle = _currentState!.currentCycle + 1;
 

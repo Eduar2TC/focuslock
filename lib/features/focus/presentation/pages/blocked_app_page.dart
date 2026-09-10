@@ -7,11 +7,49 @@ import 'package:focuslock/shared/theme/app_theme.dart';
 import 'package:focuslock/core/extensions/extensions.dart';
 import 'package:focuslock/app/dependencies.dart';
 
-class BlockedAppPage extends ConsumerWidget {
+class BlockedAppPage extends ConsumerStatefulWidget {
   const BlockedAppPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<BlockedAppPage> createState() => _BlockedAppPageState();
+}
+
+class _BlockedAppPageState extends ConsumerState<BlockedAppPage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _restoreSession());
+  }
+
+  /// On a cold start the controller is empty, so restore the persisted
+  /// active session (re-hydrating the countdown) to render the real task and
+  /// remaining time, and surface any app that triggered the blocking.
+  Future<void> _restoreSession() async {
+    final controller = ref.read(focusSessionControllerProvider);
+    if (controller != null && controller.session.isActive) return;
+
+    try {
+      final active =
+          await ref.read(focusSessionRepositoryProvider).getActiveSession();
+      if (active == null || !active.isActive || !mounted) return;
+
+      await ref
+          .read(focusSessionControllerProvider.notifier)
+          .restoreActiveSession(active);
+
+      final attempt =
+          await ref.read(nativeFocusServiceProvider).getLastBlockedAppAttempt();
+      if (attempt != null && mounted) {
+        final packageName = attempt['packageName'] ?? attempt.values.first;
+        ref.read(blockedAppAttemptProvider.notifier).state = packageName;
+      }
+    } catch (_) {
+      // Non-fatal: fall back to the default task/empty state.
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final state = ref.watch(focusSessionControllerProvider);
     final attemptedPackage = ref.watch(blockedAppAttemptProvider);
@@ -22,7 +60,9 @@ class BlockedAppPage extends ConsumerWidget {
     final planned = state?.session.plannedDuration ?? Duration.zero;
     final isStrict =
         ref.read(settingsRepositoryProvider).enforcementLevel == 'strict';
-    final allowCancel = ref.read(settingsRepositoryProvider).allowCancelSession;
+    final allowCancel = isStrict
+        ? false
+        : ref.read(settingsRepositoryProvider).allowCancelSession;
 
     final appName = _blockedAppName(ref, l10n, attemptedPackage);
 
@@ -48,10 +88,14 @@ class BlockedAppPage extends ConsumerWidget {
               Text(
                 l10n.blockedBreathe,
                 textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 14),
+                style: Theme.of(context)
+                    .textTheme
+                    .bodySmall
+                    ?.copyWith(fontSize: 14),
               ),
               const SizedBox(height: 24),
-              _buildIntentionCard(context, l10n, task, remaining, progress, planned),
+              _buildIntentionCard(
+                  context, l10n, task, remaining, progress, planned),
               const SizedBox(height: 12),
               _buildBlockedAppCard(context, l10n, appName),
               const SizedBox(height: 12),
@@ -65,11 +109,14 @@ class BlockedAppPage extends ConsumerWidget {
     );
   }
 
-  String _blockedAppName(WidgetRef ref, AppLocalizations l10n, String? packageName) {
+  String _blockedAppName(
+      WidgetRef ref, AppLocalizations l10n, String? packageName) {
     if (packageName == null) return l10n.blockedFallbackApp;
     final repository = ref.read(appRepositoryProvider);
-    final match =
-        repository.getBlockedApps().where((a) => a.packageName == packageName).toList();
+    final match = repository
+        .getBlockedApps()
+        .where((a) => a.packageName == packageName)
+        .toList();
     if (match.isNotEmpty && match.first.appName.isNotEmpty) {
       return match.first.appName;
     }
@@ -323,7 +370,10 @@ class BlockedAppPage extends ConsumerWidget {
                 const SizedBox(height: 4),
                 Text(
                   l10n.blockedStrictWarning,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(height: 1.4),
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodySmall
+                      ?.copyWith(height: 1.4),
                 ),
               ],
             ),
@@ -345,7 +395,13 @@ class BlockedAppPage extends ConsumerWidget {
           width: double.infinity,
           height: 56,
           child: FilledButton.icon(
-            onPressed: () => context.pop(),
+            onPressed: () {
+              if (context.canPop()) {
+                context.pop();
+              } else {
+                context.go('/focus');
+              }
+            },
             icon: const Icon(Icons.arrow_back_rounded,
                 size: 20, color: AppTheme.onPrimaryContainer),
             label: Text(l10n.blockedReturnToFocus),
@@ -431,8 +487,10 @@ class BlockedAppPage extends ConsumerWidget {
               Text(
                 l10n.blockedBreath,
                 textAlign: TextAlign.center,
-                style:
-                    Theme.of(sheetContext).textTheme.bodySmall?.copyWith(fontSize: 13),
+                style: Theme.of(sheetContext)
+                    .textTheme
+                    .bodySmall
+                    ?.copyWith(fontSize: 13),
               ),
               const SizedBox(height: 20),
               SizedBox(
@@ -480,8 +538,7 @@ class _Emblem extends StatefulWidget {
   State<_Emblem> createState() => _EmblemState();
 }
 
-class _EmblemState extends State<_Emblem>
-    with SingleTickerProviderStateMixin {
+class _EmblemState extends State<_Emblem> with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
 
   @override

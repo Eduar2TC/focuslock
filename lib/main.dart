@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'app/app.dart';
 import 'app/dependencies.dart';
+import 'core/services/active_run_store.dart';
 import 'features/settings/data/repositories/settings_repository.dart';
 import 'features/apps/data/repositories/app_repository.dart';
 
@@ -27,8 +28,10 @@ void main() async {
   runApp(
     ProviderScope(
       overrides: [
-        settingsRepositoryProvider.overrideWith((ref) => SettingsRepository(prefs)),
+        settingsRepositoryProvider
+            .overrideWith((ref) => SettingsRepository(prefs)),
         appRepositoryProvider.overrideWith((ref) => AppRepository(prefs)),
+        activeRunStoreProvider.overrideWith((ref) => ActiveRunStore(prefs)),
       ],
       child: const FocusLockApp(),
     ),

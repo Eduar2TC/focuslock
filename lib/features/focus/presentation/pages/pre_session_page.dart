@@ -29,9 +29,7 @@ class _PreSessionPageState extends ConsumerState<PreSessionPage> {
     super.initState();
     final settings = ref.read(settingsRepositoryProvider);
     _selectedDuration = settings.focusDuration;
-    _selectedMode = settings.enforcementLevel == 'strict'
-        ? 'strict'
-        : 'normal';
+    _selectedMode = settings.enforcementLevel == 'strict' ? 'strict' : 'normal';
   }
 
   @override
@@ -39,7 +37,8 @@ class _PreSessionPageState extends ConsumerState<PreSessionPage> {
     super.didChangeDependencies();
     if (!_prefilled) {
       _prefilled = true;
-      _taskController.text = AppLocalizations.of(context)!.presessionTaskDefault;
+      _taskController.text =
+          AppLocalizations.of(context)!.presessionTaskDefault;
     }
   }
 
@@ -129,7 +128,8 @@ class _PreSessionPageState extends ConsumerState<PreSessionPage> {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.verified_user, size: 14, color: AppTheme.primaryColor),
+                          const Icon(Icons.verified_user,
+                              size: 14, color: AppTheme.primaryColor),
                           const SizedBox(width: 6),
                           Text(
                             l10n.presessionSetupChip,
@@ -152,7 +152,10 @@ class _PreSessionPageState extends ConsumerState<PreSessionPage> {
                     const SizedBox(height: 4),
                     Text(
                       l10n.presessionReadySubtitle,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 14),
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(fontSize: 14),
                     ),
                   ],
                 ),
@@ -166,7 +169,8 @@ class _PreSessionPageState extends ConsumerState<PreSessionPage> {
                     color: AppTheme.surfaceContainerHighest,
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(Icons.lock_clock, size: 26, color: AppTheme.primaryColor),
+                  child: Icon(Icons.lock_clock,
+                      size: 26, color: AppTheme.primaryColor),
                 ),
               ),
             ],
@@ -185,7 +189,10 @@ class _PreSessionPageState extends ConsumerState<PreSessionPage> {
             Expanded(
               child: Text(
                 l10n.presessionTaskLabel,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 15),
+                style: Theme.of(context)
+                    .textTheme
+                    .titleMedium
+                    ?.copyWith(fontSize: 15),
               ),
             ),
             Text(
@@ -209,18 +216,21 @@ class _PreSessionPageState extends ConsumerState<PreSessionPage> {
           child: Row(
             children: [
               const SizedBox(width: 14),
-              const Icon(Icons.edit_note, size: 22, color: AppTheme.primaryColor),
+              const Icon(Icons.edit_note,
+                  size: 22, color: AppTheme.primaryColor),
               const SizedBox(width: 12),
               Expanded(
                 child: TextField(
                   controller: _taskController,
-                  style: const TextStyle(fontSize: 16, color: AppTheme.onSurface),
+                  style:
+                      const TextStyle(fontSize: 16, color: AppTheme.onSurface),
                   decoration: InputDecoration(
                     border: InputBorder.none,
                     enabledBorder: InputBorder.none,
                     focusedBorder: InputBorder.none,
                     hintText: l10n.presessionTaskHint,
-                    hintStyle: const TextStyle(color: AppTheme.onSurfaceVariant),
+                    hintStyle:
+                        const TextStyle(color: AppTheme.onSurfaceVariant),
                     contentPadding: const EdgeInsets.symmetric(vertical: 15),
                   ),
                   textCapitalization: TextCapitalization.sentences,
@@ -228,7 +238,8 @@ class _PreSessionPageState extends ConsumerState<PreSessionPage> {
               ),
               IconButton(
                 onPressed: _taskController.clear,
-                icon: const Icon(Icons.close, size: 18, color: AppTheme.onSurfaceVariant),
+                icon: const Icon(Icons.close,
+                    size: 18, color: AppTheme.onSurfaceVariant),
                 tooltip: l10n.commonClear,
               ),
             ],
@@ -247,11 +258,14 @@ class _PreSessionPageState extends ConsumerState<PreSessionPage> {
             Expanded(
               child: Text(
                 l10n.presessionDurationLabel,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 15),
+                style: Theme.of(context)
+                    .textTheme
+                    .titleMedium
+                    ?.copyWith(fontSize: 15),
               ),
             ),
             TextButton(
-              onPressed: () {},
+              onPressed: () => _showCustomDurationSheet(l10n),
               style: TextButton.styleFrom(
                 padding: const EdgeInsets.symmetric(horizontal: 4),
                 minimumSize: const Size(0, 32),
@@ -292,26 +306,25 @@ class _PreSessionPageState extends ConsumerState<PreSessionPage> {
                         style: TextStyle(
                           fontFamily: AppTheme.fontFamily,
                           fontSize: 20,
-                          fontWeight: isSelected
-                              ? FontWeight.w700
-                              : FontWeight.w600,
+                          fontWeight:
+                              isSelected ? FontWeight.w700 : FontWeight.w600,
                           color: isSelected
                               ? AppTheme.onPrimaryContainer
                               : AppTheme.onSurfaceVariant,
                         ),
                       ),
                       const SizedBox(height: 2),
-Text(
-                          l10n.presessionMin,
-                          style: TextStyle(
-                            fontFamily: AppTheme.fontFamily,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                            color: isSelected
-                                ? AppTheme.onPrimaryContainer
-                                : AppTheme.onSurfaceVariant,
-                          ),
+                      Text(
+                        l10n.presessionMin,
+                        style: TextStyle(
+                          fontFamily: AppTheme.fontFamily,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: isSelected
+                              ? AppTheme.onPrimaryContainer
+                              : AppTheme.onSurfaceVariant,
                         ),
+                      ),
                     ],
                   ),
                 ),
@@ -321,6 +334,21 @@ Text(
         ),
       ],
     );
+  }
+
+  Future<void> _showCustomDurationSheet(AppLocalizations l10n) async {
+    final minutes = await showModalBottomSheet<int>(
+      context: context,
+      backgroundColor: AppTheme.surfaceContainerHigh,
+      barrierColor: Colors.black54,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (sheetContext) => const _CustomDurationSheet(),
+    );
+    if (minutes != null && mounted) {
+      setState(() => _selectedDuration = minutes);
+    }
   }
 
   Widget _buildBlockedAppsSection(AppLocalizations l10n) {
@@ -338,11 +366,15 @@ Text(
                 children: [
                   Text(
                     l10n.presessionAppsToBlock,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 15),
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleMedium
+                        ?.copyWith(fontSize: 15),
                   ),
                   const SizedBox(width: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
                       color: AppTheme.surfaceContainerHighest,
                       borderRadius: BorderRadius.circular(9999),
@@ -381,7 +413,8 @@ Text(
             ),
             child: Text(
               l10n.presessionNoBlockedApps,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 13),
+              style:
+                  Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 13),
             ),
           )
         else
@@ -394,7 +427,8 @@ Text(
                 GestureDetector(
                   onTap: () => context.push('/apps'),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
                       color: AppTheme.cardColor,
                       borderRadius: BorderRadius.circular(9999),
@@ -423,7 +457,8 @@ Text(
           padding: const EdgeInsets.symmetric(horizontal: 4),
           child: Text(
             l10n.presessionEnforcementMode,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 15),
+            style:
+                Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 15),
           ),
         ),
         const SizedBox(height: 12),
@@ -451,9 +486,9 @@ Text(
   void _selectMode(String mode) {
     if (_selectedMode == mode) return;
     setState(() => _selectedMode = mode);
+    // Only persist the mode; cancel/bypass behavior is derived from it at
+    // runtime so the Settings screen switches are not silently clobbered.
     ref.read(settingsRepositoryProvider).setEnforcementLevel(mode);
-    ref.read(settingsRepositoryProvider).setAllowCancelSession(mode != 'strict');
-    ref.read(settingsRepositoryProvider).setAllowEmergencyExit(mode != 'strict');
   }
 
   Widget _buildStartButton(AppLocalizations l10n) {
@@ -476,23 +511,59 @@ Text(
     );
   }
 
-  void _startSession() {
+  void _startSession() async {
     final task = _taskController.text.trim();
     if (task.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context)!.presessionErrorEmptyTask)),
+        SnackBar(
+            content:
+                Text(AppLocalizations.of(context)!.presessionErrorEmptyTask)),
       );
       return;
+    }
+
+    if (_selectedMode == 'strict') {
+      if (_enabledBlockedApps.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content:
+                Text(AppLocalizations.of(context)!.presessionErrorRequiresApps),
+          ),
+        );
+        return;
+      }
+      if (!await _hasBlockingPermissions()) {
+        if (!mounted) return;
+        context.push('/permissions');
+        return;
+      }
     }
 
     try {
       final controller = ref.read(focusSessionControllerProvider.notifier);
       controller.prepareSession(task, durationMinutes: _selectedDuration);
+      if (!mounted) return;
       context.push('/focus');
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('$e')),
       );
+    }
+  }
+
+  /// A strict session must actually block apps; if the native permission is
+  /// missing the user is redirected to the accessibility/usage grant screen
+  /// instead of silently skipping the blocked-app gate.
+  Future<bool> _hasBlockingPermissions() async {
+    try {
+      final result =
+          await ref.read(nativeFocusServiceProvider).hasRequiredPermissions();
+      return (result['accessibility'] ?? false) &&
+          (result['usageStats'] ?? false);
+    } catch (_) {
+      // Non-Android environment (tests/desktop): do not block the flow.
+      return true;
     }
   }
 
@@ -554,7 +625,8 @@ class _ModeCard extends StatelessWidget {
               : AppTheme.surfaceContainerHigh,
           borderRadius: BorderRadius.circular(12),
           border: selected
-              ? Border.all(color: AppTheme.primaryColor.withValues(alpha: 0.4), width: 1)
+              ? Border.all(
+                  color: AppTheme.primaryColor.withValues(alpha: 0.4), width: 1)
               : null,
         ),
         child: Row(
@@ -573,7 +645,8 @@ class _ModeCard extends StatelessWidget {
                   shape: BoxShape.circle,
                 ),
                 child: selected
-                    ? const Icon(Icons.circle, size: 8, color: AppTheme.onPrimaryColor)
+                    ? const Icon(Icons.circle,
+                        size: 8, color: AppTheme.onPrimaryColor)
                     : null,
               ),
             ),
@@ -616,7 +689,10 @@ class _ModeCard extends StatelessWidget {
                   const SizedBox(height: 6),
                   Text(
                     description,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 13),
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodySmall
+                        ?.copyWith(fontSize: 13),
                   ),
                 ],
               ),
@@ -669,7 +745,125 @@ class _AppBlockChip extends StatelessWidget {
           const SizedBox(width: 8),
           Text(
             app.appName,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 12),
+            style:
+                Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 12),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CustomDurationSheet extends ConsumerStatefulWidget {
+  const _CustomDurationSheet();
+
+  @override
+  ConsumerState<_CustomDurationSheet> createState() =>
+      _CustomDurationSheetState();
+}
+
+class _CustomDurationSheetState extends ConsumerState<_CustomDurationSheet> {
+  static const int _min = 5;
+  static const int _max = 120;
+  static const int _step = 5;
+
+  late int _minutes;
+
+  @override
+  void initState() {
+    super.initState();
+    final saved = ref.read(settingsRepositoryProvider).focusDuration;
+    final clamped = saved.clamp(_min, _max);
+    _minutes = _min + ((clamped - _min) ~/ _step) * _step;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    const divisions = (_max - _min) ~/ _step;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 28),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 36,
+            height: 4,
+            decoration: BoxDecoration(
+              color: AppTheme.onSurfaceVariant.withValues(alpha: 0.3),
+              borderRadius: BorderRadius.circular(9999),
+            ),
+          ),
+          const SizedBox(height: 20),
+          Text(
+            l10n.presessionCustomDuration,
+            style: Theme.of(context).textTheme.headlineSmall,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            l10n.presessionCustomMin(_minutes),
+            style: const TextStyle(
+              fontFamily: AppTheme.fontFamily,
+              fontSize: 40,
+              fontWeight: FontWeight.w700,
+              color: AppTheme.primaryColor,
+            ),
+          ),
+          SliderTheme(
+            data: SliderTheme.of(context).copyWith(
+              trackHeight: 4,
+              activeTrackColor: AppTheme.primaryColor,
+              inactiveTrackColor: AppTheme.surfaceContainerHighest,
+              thumbColor: AppTheme.primaryColor,
+              overlayColor: AppTheme.primaryColor.withValues(alpha: 0.12),
+              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
+              overlayShape: const RoundSliderOverlayShape(overlayRadius: 18),
+              valueIndicatorColor: AppTheme.primaryColor,
+            ),
+            child: Slider(
+              value: _minutes.toDouble(),
+              min: _min.toDouble(),
+              max: _max.toDouble(),
+              divisions: divisions,
+              label: l10n.presessionCustomMin(_minutes),
+              onChanged: (v) => setState(() => _minutes = v.round()),
+            ),
+          ),
+          Row(
+            children: [
+              Text(
+                l10n.presessionCustomMin(_min),
+                style: const TextStyle(
+                  fontFamily: AppTheme.fontFamily,
+                  fontSize: 11,
+                  color: AppTheme.onSurfaceVariant,
+                ),
+              ),
+              const Spacer(),
+              Text(
+                l10n.presessionCustomMin(_max),
+                style: const TextStyle(
+                  fontFamily: AppTheme.fontFamily,
+                  fontSize: 11,
+                  color: AppTheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          SizedBox(
+            width: double.infinity,
+            height: 52,
+            child: FilledButton(
+              onPressed: () => Navigator.pop(context, _minutes),
+              style: FilledButton.styleFrom(
+                backgroundColor: AppTheme.primaryColor,
+                foregroundColor: AppTheme.onPrimaryColor,
+                shape: const StadiumBorder(),
+              ),
+              child: Text(l10n.presessionCustomSet),
+            ),
           ),
         ],
       ),
