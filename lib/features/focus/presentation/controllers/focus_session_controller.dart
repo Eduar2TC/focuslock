@@ -21,6 +21,8 @@ class FocusSessionController extends StateNotifier<FocusSessionState?> {
   final ActiveRunStore _runStore;
 
   StreamSubscription<FocusSessionState>? _stateSubscription;
+  Duration _totalPausedDuration = Duration.zero;
+  DateTime? _pauseStartTime;
 
   FocusSessionController(
     this._engine,
@@ -109,6 +111,8 @@ class FocusSessionController extends StateNotifier<FocusSessionState?> {
     _completing = false;
     _persistedRowId = null;
     _runStore.clear();
+    _totalPausedDuration = Duration.zero;
+    _pauseStartTime = null;
     final session = FocusSession(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       task: task,
@@ -139,6 +143,9 @@ class FocusSessionController extends StateNotifier<FocusSessionState?> {
     }
 
     _writeRunSnapshot();
+
+    _totalPausedDuration = Duration.zero;  // Reset accumulated paused duration
+    _pauseStartTime = null;
 
     try {
       final blockedApps = _appRepository.getActiveBlockedPackages();

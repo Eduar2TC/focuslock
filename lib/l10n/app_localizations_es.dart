@@ -298,6 +298,9 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String get statsSessionsDone => 'Hecho';
+
+  @override
   String get statsTotalFocusTimeLabel => 'Tiempo enfocado';
 
   @override
@@ -522,6 +525,11 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String appsErrorLoad(String error) {
     return 'Error al cargar apps: $error';
+  }
+
+  @override
+  String statsErrorLoad(String error) {
+    return 'Error al cargar estadísticas: $error';
   }
 
   @override

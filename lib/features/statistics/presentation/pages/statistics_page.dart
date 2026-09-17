@@ -48,7 +48,7 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
             color: AppTheme.onSurfaceVariant,
           ),
           const SizedBox(height: 12),
-          Text(l10n.appsErrorLoad('')),
+          Text(l10n.statsErrorLoad('')),
         ],
       ),
     );
@@ -298,14 +298,7 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                     color: AppTheme.onSurfaceVariant,
                   ),
                 ),
-                const TextSpan(
-                  text: 'done',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w500,
-                    color: AppTheme.onSurfaceVariant,
-                  ),
-                ),
+                // Removed hardcoded 'done' - use localized pattern instead
               ],
             ),
           ),
@@ -418,7 +411,7 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
             decoration: const BoxDecoration(
               border: Border(
                 top: BorderSide(
-                  color: Color(0xFF3C4A42),
+                  color: AppTheme.outlineVariant,
                   width: 0.6,
                 ),
               ),
@@ -530,7 +523,7 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
             padding: const EdgeInsets.only(top: 12),
             decoration: const BoxDecoration(
               border: Border(
-                top: BorderSide(color: Color(0xFF3C4A42), width: 0.6),
+                top: BorderSide(color: AppTheme.outlineVariant, width: 0.6),
               ),
             ),
             child: Row(
@@ -873,7 +866,7 @@ class _MetricFooter extends StatelessWidget {
       padding: const EdgeInsets.only(top: 10),
       decoration: const BoxDecoration(
         border: Border(
-          top: BorderSide(color: Color(0xFF3C4A42), width: 0.6),
+          top: BorderSide(color: AppTheme.outlineVariant, width: 0.6),
         ),
       ),
       child: text.isEmpty

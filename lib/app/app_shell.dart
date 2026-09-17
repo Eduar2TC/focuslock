@@ -41,8 +41,8 @@ class _ShellNavigationBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Container(
-      decoration: const BoxDecoration(
-        color: Color(0xFF1A1B20),
+      decoration: BoxDecoration(
+        color: AppTheme.surfaceColor,
         border: Border(top: BorderSide(color: AppTheme.dividerColor)),
       ),
       child: SafeArea(
@@ -106,7 +106,7 @@ class _NavItem extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
               decoration: BoxDecoration(
                 color: selected
-                    ? const Color(0xFF10B981).withValues(alpha: 0.19)
+                    ? AppTheme.primaryContainer.withValues(alpha: 0.19)
                     : Colors.transparent,
                 borderRadius: BorderRadius.circular(9999),
               ),

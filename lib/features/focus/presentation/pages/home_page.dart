@@ -296,14 +296,14 @@ class HomePage extends ConsumerWidget {
         style: FilledButton.styleFrom(
           backgroundColor: AppTheme.primaryContainer,
           foregroundColor: AppTheme.onPrimaryContainer,
-          elevation: 0,
+          elevation: 8,
+          shadowColor: AppTheme.primaryContainer.withValues(alpha: 0.4),
           shape: const StadiumBorder(),
           textStyle: const TextStyle(
             fontFamily: AppTheme.fontFamily,
             fontSize: 16,
             fontWeight: FontWeight.w600,
           ),
-          shadowColor: AppTheme.primaryContainer.withValues(alpha: 0.4),
         ).copyWith(
           elevation: const WidgetStatePropertyAll(8),
         ),
@@ -397,6 +397,7 @@ class HomePage extends ConsumerWidget {
                   label: DateFormat('E', l10n.localeName).format(DateTime.now().subtract(Duration(days: 6 - i))).substring(0, 1),
                   active: active,
                   isToday: isToday,
+                  showActiveBadge: streak > 0,
                 );
               }),
             ),
@@ -470,11 +471,13 @@ class _WeekDayDot extends StatelessWidget {
     required this.label,
     required this.active,
     required this.isToday,
+    required this.showActiveBadge,
   });
 
   final String label;
   final bool active;
   final bool isToday;
+  final bool showActiveBadge;
 
   @override
   Widget build(BuildContext context) {
@@ -488,8 +491,8 @@ class _WeekDayDot extends StatelessWidget {
           style: TextStyle(
             fontFamily: AppTheme.fontFamily,
             fontSize: 11,
-            fontWeight: isToday ? FontWeight.w700 : FontWeight.w400,
-            color: isToday ? AppTheme.primaryColor : AppTheme.onSurfaceVariant,
+            fontWeight: showActiveBadge && isToday ? FontWeight.w700 : FontWeight.w400,
+            color: showActiveBadge && isToday ? AppTheme.primaryColor : AppTheme.onSurfaceVariant,
           ),
         ),
         const SizedBox(height: 4),
@@ -498,13 +501,13 @@ class _WeekDayDot extends StatelessWidget {
           width: 28,
           height: 28,
           decoration: BoxDecoration(
-            color: active ? fillColor : Colors.transparent,
+            color: showActiveBadge && active ? fillColor : Colors.transparent,
             shape: BoxShape.circle,
             border: Border.all(
-              color: active ? fillColor : AppTheme.surfaceContainerHighest,
+              color: showActiveBadge && active ? fillColor : AppTheme.surfaceContainerHighest,
               width: 1,
             ),
-            boxShadow: isToday
+            boxShadow: showActiveBadge && isToday
                 ? [
                     BoxShadow(
                       color: AppTheme.primaryColor.withValues(alpha: 0.35),
@@ -513,7 +516,7 @@ class _WeekDayDot extends StatelessWidget {
                   ]
                 : null,
           ),
-          child: active
+          child: showActiveBadge && active
               ? Icon(
                   Icons.check_rounded,
                   size: 14,

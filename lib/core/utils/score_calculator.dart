@@ -23,6 +23,8 @@ class ScoreCalculator {
 
     score -= blockedAttemptCount * 3;
 
+    score -= interruptionCount * 2;
+
     return score;
   }
 

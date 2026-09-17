@@ -372,7 +372,6 @@ class PomodoroEngine {
 
     _session = _session.copyWith(
       status: SessionStatus.running,
-      startedAt: DateTime.now(),
     );
 
     _endTimestamp = DateTime.now().add(_session.plannedDuration);
