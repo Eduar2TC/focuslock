@@ -126,9 +126,9 @@ class _AppsPageState extends ConsumerState<AppsPage> with WidgetsBindingObserver
           margin: const EdgeInsets.all(16),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AppTheme.warningColor.withOpacity(0.1),
+            color: AppTheme.warningColor.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppTheme.warningColor.withOpacity(0.3)),
+            border: Border.all(color: AppTheme.warningColor.withValues(alpha: 0.3)),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -186,18 +186,17 @@ class _AppsPageState extends ConsumerState<AppsPage> with WidgetsBindingObserver
       itemCount: _installedApps.length,
       itemBuilder: (context, index) {
         final app = _installedApps[index];
-        final isBlocked = _isAppBlocked(app.packageName);
-
+        
         return ListTile(
           title: Text(app.appName),
           subtitle: Text(
             app.packageName,
             style: Theme.of(context).textTheme.bodySmall,
           ),
-          trailing: Switch(
-            value: isBlocked,
+trailing: Switch(
+            value: _isAppBlocked(app.packageName),
             onChanged: (_) => _toggleApp(app),
-            activeColor: AppTheme.primaryColor,
+            activeThumbColor: AppTheme.primaryColor,
           ),
         );
       },

@@ -375,6 +375,10 @@
     "description": "Sessions stat label"
   },
   "statsSessionsValue": "{count} completed",
+  "statsSessionsDone": "done",
+  "@statsSessionsDone": {
+    "description": "Done sessions label"
+  },
   "@statsSessionsValue": {
     "description": "Sessions stat value",
     "placeholders": {
@@ -651,6 +655,13 @@
   "appsErrorLoad": "Failed to load apps: {error}",
   "@appsErrorLoad": {
     "description": "Error loading apps",
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "statsErrorLoad": "Error loading statistics: {error}",
+  "@statsErrorLoad": {
+    "description": "Error loading statistics",
     "placeholders": {
       "error": {"type": "String"}
     }

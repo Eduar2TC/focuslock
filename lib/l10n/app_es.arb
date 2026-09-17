@@ -153,6 +153,17 @@
   "presessionErrorRequiresApps": "Añade al menos una app que bloquear antes de comenzar.",
   "appsEmptyTitle": "No se encontraron apps",
   "appsErrorLoad": "Error al cargar apps: {error}",
+  "statsSessionsDone": "Hecho",
+  "@statsSessionsDone": {
+    "description": "Hecho de sesiones"
+  },
+  "statsErrorLoad": "Error al cargar estadísticas: {error}",
+  "@statsErrorLoad": {
+    "description": "Error loading statistics",
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
 
   "notificationSessionActiveTitle": "Sesion de Enfoque Activa",
   "notificationSessionActiveBody": "{task} - {minutes} minutos",

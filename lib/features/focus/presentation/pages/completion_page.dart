@@ -118,7 +118,7 @@ class CompletionPage extends ConsumerWidget {
       height: 120,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: color.withOpacity(isCompleted ? 0.12 : 0.08),
+        color: color.withValues(alpha: isCompleted ? 0.12 : 0.08),
       ),
       alignment: Alignment.center,
       child: Icon(icon, size: 64, color: color),
@@ -137,7 +137,7 @@ class CompletionPage extends ConsumerWidget {
         color: AppTheme.surfaceColor,
         borderRadius: BorderRadius.circular(16),
         border: isPositive
-            ? Border.all(color: AppTheme.successColor.withOpacity(0.25))
+            ? Border.all(color: AppTheme.successColor.withValues(alpha: 0.25))
             : null,
       ),
       child: Column(

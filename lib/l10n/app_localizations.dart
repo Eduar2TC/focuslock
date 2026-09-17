@@ -632,6 +632,12 @@ abstract class AppLocalizations {
   /// **'{count} completed'**
   String statsSessionsValue(int count);
 
+  /// Done sessions label
+  ///
+  /// In en, this message translates to:
+  /// **'done'**
+  String get statsSessionsDone;
+
   /// Focus time stat label
   ///
   /// In en, this message translates to:
@@ -949,6 +955,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Failed to load apps: {error}'**
   String appsErrorLoad(String error);
+
+  /// Error loading statistics
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading statistics: {error}'**
+  String statsErrorLoad(String error);
 
   /// Notification title for active session
   ///

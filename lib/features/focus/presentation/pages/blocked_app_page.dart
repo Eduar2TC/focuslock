@@ -67,7 +67,7 @@ class _BlockedAppPageState extends ConsumerState<BlockedAppPage> {
     final appName = _blockedAppName(ref, l10n, attemptedPackage);
 
     return PopScope(
-      canPop: false,
+      canPop: isStrict,
       child: Scaffold(
         backgroundColor: AppTheme.backgroundColor,
         body: SafeArea(
