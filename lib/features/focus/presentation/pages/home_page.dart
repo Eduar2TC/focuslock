@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:focuslock/l10n/app_localizations.dart';
-import 'package:focuslock/shared/theme/app_theme.dart';
-import 'package:focuslock/core/constants/app_constants.dart';
-import 'package:focuslock/core/extensions/extensions.dart';
-import 'package:focuslock/features/focus/domain/entities/focus_session.dart';
-import 'package:focuslock/app/dependencies.dart';
+
+import '../../../../app/dependencies.dart';
+import '../../../../core/constants/app_constants.dart';
+import '../../../../core/extensions/extensions.dart';
+import '../../../../l10n/app_localizations.dart';
+import '../../../../shared/theme/app_theme.dart';
+import '../../domain/entities/focus_session.dart';
 
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
@@ -18,8 +19,7 @@ class HomePage extends ConsumerWidget {
     final sessionState = ref.watch(focusSessionControllerProvider);
     final dashboardAsync = ref.watch(homeDashboardProvider);
     final currentStreakAsync = ref.watch(currentStreakProvider);
-    final hasActiveSession =
-        sessionState != null && sessionState.session.isActive;
+    final hasActiveSession = sessionState != null && sessionState.session.isActive;
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 96),
@@ -67,8 +67,7 @@ class HomePage extends ConsumerWidget {
 
   Widget _buildHeader(BuildContext context, AppLocalizations l10n) {
     final now = DateTime.now();
-    final dateLabel =
-        DateFormat('EEEE, MMM d', l10n.localeName).format(now);
+    final dateLabel = DateFormat('EEEE, MMM d', l10n.localeName).format(now);
     final greeting = now.greeting(l10n);
 
     return Column(
@@ -142,9 +141,7 @@ class HomePage extends ConsumerWidget {
   ) {
     final goal = AppConstants.dailyFocusGoalMinutes.minutes;
     final goalLabel = goal.formattedShort;
-    final percent = goal.inSeconds == 0
-        ? 0.0
-        : (data.todayFocusTime.inSeconds / goal.inSeconds).clamp(0.0, 1.0);
+    final percent = goal.inSeconds == 0 ? 0.0 : (data.todayFocusTime.inSeconds / goal.inSeconds).clamp(0.0, 1.0);
     final percentLabel = (percent * 100).round();
 
     return Container(
@@ -293,9 +290,7 @@ class HomePage extends ConsumerWidget {
       width: double.infinity,
       height: 60,
       child: FilledButton.icon(
-        onPressed: () => hasActiveSession
-            ? context.go('/focus')
-            : context.push('/pre-session'),
+        onPressed: () => hasActiveSession ? context.go('/focus') : context.push('/pre-session'),
         icon: Icon(icon, size: 24),
         label: Text(label),
         style: FilledButton.styleFrom(
@@ -374,8 +369,7 @@ class HomePage extends ConsumerWidget {
                 ),
               ),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
                   color: AppTheme.surfaceContainerHigh,
                   borderRadius: BorderRadius.circular(9999),
@@ -400,9 +394,7 @@ class HomePage extends ConsumerWidget {
                 final isToday = i == 6;
                 final active = week[i];
                 return _WeekDayDot(
-                  label: DateFormat('E', l10n.localeName)
-                      .format(DateTime.now().subtract(Duration(days: 6 - i)))
-                      .substring(0, 1),
+                  label: DateFormat('E', l10n.localeName).format(DateTime.now().subtract(Duration(days: 6 - i))).substring(0, 1),
                   active: active,
                   isToday: isToday,
                 );
@@ -425,10 +417,7 @@ class HomePage extends ConsumerWidget {
           children: [
             Text(
               l10n.homeRecentActivity,
-              style: Theme.of(context)
-                  .textTheme
-                  .headlineSmall
-                  ?.copyWith(fontSize: 18),
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontSize: 18),
             ),
             const Spacer(),
             TextButton(
@@ -454,8 +443,7 @@ class HomePage extends ConsumerWidget {
             ),
             child: Row(
               children: [
-                const Icon(
-                    Icons.history, size: 20, color: AppTheme.onSurfaceVariant),
+                const Icon(Icons.history, size: 20, color: AppTheme.onSurfaceVariant),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
@@ -490,12 +478,8 @@ class _WeekDayDot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fillColor = isToday
-        ? AppTheme.primaryColor
-        : AppTheme.primaryContainer;
-    final fgColor = isToday
-        ? AppTheme.onPrimaryColor
-        : AppTheme.onPrimaryContainer;
+    final fillColor = isToday ? AppTheme.primaryColor : AppTheme.primaryContainer;
+    final fgColor = isToday ? AppTheme.onPrimaryColor : AppTheme.onPrimaryContainer;
 
     return Column(
       children: [
@@ -517,9 +501,7 @@ class _WeekDayDot extends StatelessWidget {
             color: active ? fillColor : Colors.transparent,
             shape: BoxShape.circle,
             border: Border.all(
-              color: active
-                  ? fillColor
-                  : AppTheme.surfaceContainerHighest,
+              color: active ? fillColor : AppTheme.surfaceContainerHighest,
               width: 1,
             ),
             boxShadow: isToday
@@ -554,13 +536,12 @@ class _RecentActivityItem extends StatelessWidget {
     final completed = session.isCompleted;
     final l10n = AppLocalizations.of(context)!;
     final icon = completed ? Icons.code : Icons.menu_book;
-    final statusLabel =
-        completed ? l10n.homeRecentCompleted : l10n.homeRecentCancelled;
-    final statusColor =
-        completed ? AppTheme.primaryContainer : AppTheme.errorColor;
+    final statusLabel = completed ? l10n.homeRecentCompleted : l10n.homeRecentCancelled;
+    final statusColor = completed ? AppTheme.primaryContainer : AppTheme.errorColor;
 
     return Container(
       padding: const EdgeInsets.all(12),
+      margin: const EdgeInsets.only(bottom: 4),
       decoration: BoxDecoration(
         color: AppTheme.cardColor,
         borderRadius: BorderRadius.circular(16),
@@ -577,9 +558,7 @@ class _RecentActivityItem extends StatelessWidget {
             child: Icon(
               icon,
               size: 20,
-              color: completed
-                  ? AppTheme.primaryColor
-                  : AppTheme.onSurfaceVariant,
+              color: completed ? AppTheme.primaryColor : AppTheme.onSurfaceVariant,
             ),
           ),
           const SizedBox(width: 12),
